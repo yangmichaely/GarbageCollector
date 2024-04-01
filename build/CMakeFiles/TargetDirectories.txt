@@ -1,0 +1,6 @@
+/u/yangm/cs429/GarbageCollector/build/CMakeFiles/rebuild_cache.dir
+/u/yangm/cs429/GarbageCollector/build/CMakeFiles/edit_cache.dir
+/u/yangm/cs429/GarbageCollector/build/CMakeFiles/project3.dir
+/u/yangm/cs429/GarbageCollector/build/libtdmm/CMakeFiles/rebuild_cache.dir
+/u/yangm/cs429/GarbageCollector/build/libtdmm/CMakeFiles/edit_cache.dir
+/u/yangm/cs429/GarbageCollector/build/libtdmm/CMakeFiles/tdmm.dir
