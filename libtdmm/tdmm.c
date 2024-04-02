@@ -15,9 +15,9 @@ metadata* freeHead;
 metadata* usedHead;
 metadata* curFree;
 metadata* curUsed;
-metadata* curPage;
 uint64_t headerCounter;
-void* stackTop;
+void* stackBottom;
+void* curPage;
 
 metadata* searchFirstFit(size_t size){
     metadata* ans = NULL;
@@ -63,7 +63,6 @@ metadata* searchWorstFit(size_t size){
 }
 
 void* newHeader(){
-    headerCounter += HEADER_SIZE;
     metadata* newHeader = NULL;
     if(headerCounter > PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -72,6 +71,7 @@ void* newHeader(){
     }
     else{
         newHeader = curPage + headerCounter;
+        headerCounter += HEADER_SIZE;
     }
     return newHeader;
 }
@@ -87,7 +87,7 @@ void insertHeader(metadata* cmp){
                 freeHead = cmp;
             }
             else{
-                ((metadata*) (temp -> prev)) -> next = cmp;
+                (temp -> prev) -> next = cmp;
             }
             temp -> prev = cmp;
             found = 1;
@@ -187,6 +187,7 @@ void* createUsedBlock(metadata* block, size_t size){
         else{
             curUsed -> next = newUsed;
             newUsed -> prev = curUsed;
+            newUsed -> next = NULL;
             curUsed = newUsed;
         }
         return newUsed -> usableMem;
@@ -213,10 +214,10 @@ void* worstFit(size_t size){
     
 // }
 
-void t_init(alloc_strat_e allocStrat, void* stTop){
+void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     headerCounter = HEADER_SIZE;
-    stackTop = stTop;
+    stackBottom = stBot;
     if(allocStrat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -245,30 +246,30 @@ void* t_malloc(size_t size){
     }
 }
 
-void* combine(metadata* block){
+metadata* combine(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
-    if(next != NULL && (uint64_t) block -> usableMem + block -> size == (uint64_t) next -> usableMem){
+    if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
         block -> size += next -> size;
         block -> next = next -> next;
         if(next -> next != NULL){
-            ((metadata*) (next -> next)) -> prev = block;
+            (next -> next) -> prev = block;
         }
         else{
             curFree = block;
         }
         next = NULL;
     }
-    if(previous != NULL && (uint64_t) previous -> usableMem + previous -> size == (uint64_t) block -> usableMem){
+    if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
         block -> size += previous -> size;
         block -> prev = previous -> prev;
+        block -> usableMem = previous -> usableMem;
         if(previous -> prev != NULL){
-            ((metadata*) (previous -> prev)) -> next = block;
+            (previous -> prev) -> next = block;
         }
         else{
             freeHead = block;
         }
-        block -> usableMem = previous -> usableMem;
         previous = NULL;
     }
     return block;
@@ -303,7 +304,7 @@ void t_free(void* ptr){
 //TODO: implement this
 void t_gcollect(void){
 //     void* bottom;
-//     for(void* i = bottom; i < stackTop - 8; i += 8){
+//     for(void* i = bottom; i < stackBottom - 8; i += 8){
 //         //TODO: check every 8 bytes to see if they live on heap
 //     }
 }

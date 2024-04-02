@@ -8,6 +8,22 @@ int main(){
     t_free(ptr1);
     ptr1 = t_malloc(2000);
     t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
+    ptr1 = t_malloc(2000);
+    t_free(ptr1);
     //t_gcollect();
     return 0;
 }
