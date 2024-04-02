@@ -297,9 +297,9 @@ void t_free(void* ptr){
 }
 
 //TODO: implement this
-// void t_gcollect(void){
+void t_gcollect(void){
 //     void* bottom;
 //     for(void* i = bottom; i < stackTop - 8; i += 8){
 //         //TODO: check every 8 bytes to see if they live on heap
 //     }
-// }
+}
