@@ -66,15 +66,11 @@ void* newHeader(){
     metadata* newHeader = NULL;
     if(headerCounter > PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        if(curPage == MAP_FAILED){
-            perror("mmap failed");
-            exit(1);
-        }
-        newHeader = curPage;
+        newHeader = (metadata*) curPage;
         headerCounter = HEADER_SIZE;
     }
     else{
-        newHeader = (metadata*) curPage + headerCounter;
+        newHeader = (metadata*) ((char*) curPage + headerCounter);
         headerCounter += HEADER_SIZE;
     }
     return newHeader;
@@ -169,10 +165,6 @@ void* createUsedBlock(metadata* block, size_t size){
         void* newMem;
         if(size < PAGE_SIZE){
             newMem = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-            if(newMem == MAP_FAILED){
-                perror("mmap failed");
-                exit(1);
-            }
             metadata* newFree = newHeader();
             newFree -> next = NULL;
             newFree -> prev = NULL;
@@ -182,10 +174,6 @@ void* createUsedBlock(metadata* block, size_t size){
         }
         else{
             newMem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-            if(newMem == MAP_FAILED){
-                perror("mmap failed");
-                exit(1);
-            }
         }
         metadata* newUsed = newHeader();
         newUsed -> usableMem = newMem;
@@ -230,15 +218,7 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
     stackBottom = stBot;
     if(allocStrat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        if(usableMemory == MAP_FAILED){
-            perror("mmap failed");
-            exit(1);
-        }
         void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        if(headerMemory == MAP_FAILED){
-            perror("mmap failed");
-            exit(1);
-        }
         curPage = headerMemory;
         freeHead = (metadata*) headerMemory;
         freeHead -> size = PAGE_SIZE;
