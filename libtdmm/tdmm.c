@@ -20,7 +20,6 @@ void* stackBottom;
 void* curPage;
 
 metadata* searchFirstFit(size_t size){
-    metadata* ans = NULL;
     metadata* temp = freeHead;
     while(temp != NULL){
         if(temp -> size >= size){
@@ -28,6 +27,7 @@ metadata* searchFirstFit(size_t size){
         }
         temp = temp -> next;
     }
+    return NULL;
 }
 
 metadata* searchBestFit(size_t size){
