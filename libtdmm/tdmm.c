@@ -215,7 +215,6 @@ void* worstFit(size_t size){
 
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
-    headerCounter = HEADER_SIZE;
     stackBottom = stBot;
     if(allocStrat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -229,6 +228,7 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
         curFree = freeHead;
         curUsed = NULL;
         usedHead = NULL;
+        headerCounter = HEADER_SIZE;
     }
 }
 
