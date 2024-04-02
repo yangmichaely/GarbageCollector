@@ -258,6 +258,7 @@ void* combine(metadata* block){
     if(previous != NULL && (uint64_t) previous -> usableMem + previous -> size == (uint64_t) block -> usableMem){
         block -> size += previous -> size;
         block -> prev = previous -> prev;
+        block -> usableMem = previous -> usableMem;
         if(previous -> prev != NULL){
             ((metadata*) (previous -> prev)) -> next = block;
         }
