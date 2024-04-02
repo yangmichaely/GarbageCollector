@@ -138,10 +138,10 @@ void* createUsedBlock(metadata* block, size_t size){
             if(next != NULL){
                 next -> prev = previous;
             }
-            if(previous == NULL){
+            if(previous == NULL && next != NULL){
                 freeHead = next;
             }
-            if(next == NULL){
+            if(next == NULL && previous != NULL){
                 curFree = previous;
             }
             block -> next = NULL;
