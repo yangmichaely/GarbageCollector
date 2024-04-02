@@ -236,8 +236,8 @@ void* t_malloc(size_t size){
             return bestFit(size);
         case WORST_FIT:
             return worstFit(size);
-        case BUDDY:
-            return buddy(size);
+        // case BUDDY:
+        //     return buddy(size);
     }
 }
 
