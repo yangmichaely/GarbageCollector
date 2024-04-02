@@ -96,13 +96,13 @@ void insertHeader(metadata* cmp){
         temp = temp -> next;
     }
     if(found == 0){
-        if(freeHead -> usableMem > cmp -> usableMem){
+        if(freeHead != NULL && freeHead -> usableMem > cmp -> usableMem){
             cmp -> next = freeHead;
             freeHead -> prev = cmp;
             cmp -> prev = NULL;
             freeHead = cmp;
         }
-        else if(curFree -> usableMem < cmp -> usableMem){
+        else if(curFree != NULL && curFree -> usableMem < cmp -> usableMem){
             curFree -> next = cmp;
             cmp -> prev = curFree;
             cmp -> next = NULL;
