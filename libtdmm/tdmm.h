@@ -14,12 +14,14 @@ typedef enum{
     BUDDY
 } alloc_strat_e;
 
-typedef struct{
+typedef struct metadata metadata;
+
+struct metadata{
     size_t size;
     void* usableMem;
-    void* next;
-    void* prev;
-} metadata;
+    struct metadata* next;
+    struct metadata* prev;
+};
 
 metadata* searchFirstFit(size_t);
 
@@ -27,7 +29,7 @@ metadata* searchBestFit(size_t);
 
 metadata* searchWorstFit(size_t);
 
-void* newHeader(metadata*);
+void* newHeader(int/*metadata*/);
 
 void insertHeader(metadata* cmp);
 

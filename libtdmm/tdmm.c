@@ -15,35 +15,26 @@ metadata* freeHead;
 metadata* usedHead;
 metadata* curFree;
 metadata* curUsed;
-int headerCounter;
+uint64_t headerCounter;
 void* stackTop;
 
 metadata* searchFirstFit(size_t size){
-    uint64_t minAddr = INT_MAX;
     metadata* ans = NULL;
-    int found = 0;
     metadata* temp = freeHead;
     while(temp != NULL){
         if(temp -> size >= size){
-            found = 1;
-            if((uint64_t) temp -> usableMem < minAddr){
-                minAddr = (uint64_t) temp -> usableMem;
-                ans = temp;
-            }
+            return temp;
         }
         temp = temp -> next;
     }
-    return ans;
 }
 
 metadata* searchBestFit(size_t size){
     int minSize = INT_MAX;
     metadata* ans = NULL;
-    int found = 0;
     metadata* temp = freeHead;
     while(temp != NULL){
         if(temp -> size >= size){
-            found = 1;
             if(temp -> size < minSize){
                 minSize = temp -> size;
                 ans = temp;
@@ -57,11 +48,9 @@ metadata* searchBestFit(size_t size){
 metadata* searchWorstFit(size_t size){
     int maxSize = -1;
     metadata* ans = NULL;
-    int found = 0;
     metadata* temp = freeHead;
     while(temp != NULL){
         if(temp -> size >= size){
-            found = 1;
             if(temp -> size > maxSize){
                 maxSize = temp -> size;
                 ans = temp;
@@ -72,15 +61,20 @@ metadata* searchWorstFit(size_t size){
     return ans;
 }
 
-void* newHeader(metadata* block){
+void* newHeader(int freeOrUsed){
     headerCounter += HEADER_SIZE;
-    metadata* newHeader;
+    metadata* newHeader = NULL;
     if(headerCounter > PAGE_SIZE){
         newHeader = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         headerCounter = HEADER_SIZE;
     }
     else{
-        newHeader = block;
+        if(freeOrUsed == 1){
+            newHeader = curFree + HEADER_SIZE;
+        }
+        else{
+            newHeader = curUsed + HEADER_SIZE;
+        }
     }
     return newHeader;
 }
@@ -89,7 +83,7 @@ void insertHeader(metadata* cmp){
     metadata* temp = freeHead;
     int found = 0;
     while(temp -> next != NULL){
-        if(temp -> usableMem > cmp -> usableMem){
+        if(temp -> usableMem > cmp -> usableMem && (temp -> prev) -> usableMem < cmp -> usableMem){
             cmp -> next = temp;
             cmp -> prev = temp -> prev;
             if(cmp -> prev == NULL){
@@ -140,12 +134,17 @@ void* createUsedBlock(metadata* block, size_t size){
                 block -> prev = curUsed;
                 curUsed = block;
             }
+            return block -> usableMem;
         }
         else{
-            metadata* newUsed = newHeader(block);
+            if(curUsed == NULL){
+                curUsed = block;
+            }
+            metadata* newUsed = newHeader(0);
             newUsed -> next = NULL;
             newUsed -> prev = NULL;
             newUsed -> size = size;
+            newUsed -> usableMem = block -> usableMem;
             if(usedHead == NULL){
                 usedHead = newUsed;
                 curUsed = newUsed;
@@ -157,14 +156,16 @@ void* createUsedBlock(metadata* block, size_t size){
             }
             block -> size = newSize;
             block -> usableMem = block -> usableMem + size;
+            return newUsed -> usableMem;
         }
-        return block -> usableMem;
     }
     else{
         void* newMem;
         if(size < PAGE_SIZE){
             newMem = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-            metadata* newFree = newHeader(newMem + size);
+            metadata* newFree = newHeader(1);
+            newFree -> next = NULL;
+            newFree -> prev = NULL;
             newFree -> size = PAGE_SIZE - size;
             newFree -> usableMem = newMem + size;
             insertHeader(newFree);
@@ -172,7 +173,7 @@ void* createUsedBlock(metadata* block, size_t size){
         else{
             newMem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         }
-        metadata* newUsed = newHeader(newMem);
+        metadata* newUsed = newHeader(0);
         newUsed -> usableMem = newMem;
         newUsed -> size = size;
         if(usedHead == NULL){
@@ -211,6 +212,9 @@ void* worstFit(size_t size){
 // }
 
 void t_init(alloc_strat_e allocStrat, void* stTop){
+    strat = allocStrat;
+    headerCounter = HEADER_SIZE;
+    stackTop = stTop;
     if(allocStrat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -222,9 +226,6 @@ void t_init(alloc_strat_e allocStrat, void* stTop){
         curFree = freeHead;
         curUsed = NULL;
         usedHead = NULL;
-        strat = allocStrat;
-        headerCounter = HEADER_SIZE;
-        stackTop = stTop;
     }
 }
 
@@ -258,7 +259,6 @@ void* combine(metadata* block){
     if(previous != NULL && (uint64_t) previous -> usableMem + previous -> size == (uint64_t) block -> usableMem){
         block -> size += previous -> size;
         block -> prev = previous -> prev;
-        block -> usableMem = previous -> usableMem;
         if(previous -> prev != NULL){
             ((metadata*) (previous -> prev)) -> next = block;
         }
