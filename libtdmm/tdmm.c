@@ -25,7 +25,12 @@ metadata* searchFirstFit(size_t size){
         if(temp -> size >= size){
             return temp;
         }
-        temp = temp -> next;
+        if(temp -> next != NULL){
+            temp = temp -> next;
+        }
+        else{
+            break;
+        }
     }
     return NULL;
 }
@@ -41,7 +46,12 @@ metadata* searchBestFit(size_t size){
                 ans = temp;
             }
         }
-        temp = temp -> next;
+        if(temp -> next != NULL){
+            temp = temp -> next;
+        }
+        else{
+            break;
+        }
     }
     return ans;
 }
@@ -57,7 +67,12 @@ metadata* searchWorstFit(size_t size){
                 ans = temp;
             }
         }
-        temp = temp -> next;
+        if(temp -> next != NULL){
+            temp = temp -> next;
+        }
+        else{
+            break;
+        }
     }
     return ans;
 }
@@ -280,10 +295,10 @@ void t_free(void* ptr){
         if(temp -> usableMem == ptr){
             metadata* previous = temp -> prev;
             metadata* next = temp -> next;
-            if(previous != NULL){
+            if(previous != NULL && previous -> next != NULL){
                 previous -> next = next;
             }
-            if(next != NULL){
+            if(next != NULL && next -> prev != NULL){
                 next -> prev = previous;
             }
             if(previous == NULL){
