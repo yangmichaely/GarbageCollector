@@ -29,7 +29,7 @@ metadata* searchBestFit(size_t);
 
 metadata* searchWorstFit(size_t);
 
-void* newHeader(int/*metadata*/);
+void* newHeader();
 
 void insertHeader(metadata* cmp);
 
