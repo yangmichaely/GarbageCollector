@@ -3,6 +3,7 @@
 #define PAGE_SIZE 4096
 #define HEADER_SIZE 32
 #define MIN_BUDDY_SIZE sizeof(short)
+#define MAX_BUDDY_SIZE PAGE_SIZE
 
 #include <stddef.h>
 

@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/u/yangm/cs429/GarbageCollector/libtdmm/tdmm.c
+stdlib.h
+-
+string.h
+-
+stdint.h
+-
+stdio.h
+-
+ctype.h
+-
+limits.h
+-
+regex.h
+-
+float.h
+-
+sys/mman.h
+-
+errno.h
+-
+tdmm.h
+/u/yangm/cs429/GarbageCollector/libtdmm/tdmm.h
+
+/u/yangm/cs429/GarbageCollector/libtdmm/tdmm.h
+stddef.h
+-
+
