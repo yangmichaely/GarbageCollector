@@ -85,7 +85,7 @@ void* newHeader(){
         headerCounter = HEADER_SIZE;
     }
     else{
-        newHeader = (metadata*) curPage + headerCounter;
+        newHeader = (metadata*) ((char*) curPage + headerCounter);
         headerCounter += HEADER_SIZE;
     }
     return newHeader;
@@ -114,17 +114,13 @@ void insertHeader(metadata* cmp){
         if(freeHead != NULL && freeHead -> usableMem > cmp -> usableMem){
             cmp -> next = freeHead;
             freeHead -> prev = cmp;
-            if(cmp -> prev != NULL){
-                cmp -> prev = NULL;
-            }
+            cmp -> prev = NULL;
             freeHead = cmp;
         }
         else if(curFree != NULL && curFree -> usableMem < cmp -> usableMem){
             curFree -> next = cmp;
             cmp -> prev = curFree;
-            if(cmp -> next != NULL){
-                cmp -> next = NULL;
-            }
+            cmp -> next = NULL;
             curFree = cmp;
         }
     }
@@ -264,7 +260,7 @@ void* t_malloc(size_t size){
     }
 }
 
-void combine(metadata* block){
+metadata* combine(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
     if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
@@ -279,16 +275,18 @@ void combine(metadata* block){
         next = NULL;
     }
     if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
-        previous -> size += block -> size;
-        previous -> next = next;
-        if(next != NULL){
-            next -> prev = previous;
+        block -> size += previous -> size;
+        block -> prev = previous -> prev;
+        block -> usableMem = previous -> usableMem;
+        if(previous -> prev != NULL){
+            (previous -> prev) -> next = block;
         }
         else{
-            curFree = previous;
+            freeHead = block;
         }
-        block = NULL;
+        previous = NULL;
     }
+    return block;
 }
 
 void t_free(void* ptr){
@@ -310,7 +308,7 @@ void t_free(void* ptr){
                 curUsed = previous;
             }
             insertHeader(temp);
-            combine(temp);
+            temp = combine(temp);
             break;
         }
         temp = temp -> next;
