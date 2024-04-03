@@ -85,7 +85,7 @@ void* newHeader(){
         headerCounter = HEADER_SIZE;
     }
     else{
-        newHeader = (metadata*) curPage + headerCounter;
+        newHeader = curPage + headerCounter;
         headerCounter += HEADER_SIZE;
     }
     return newHeader;
@@ -278,7 +278,7 @@ void combine(metadata* block){
         else{
             curFree = block;
         }
-        if(next == (metadata*) curPage + headerCounter - HEADER_SIZE){
+        if(next == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
         next = NULL;
@@ -292,7 +292,7 @@ void combine(metadata* block){
         else{
             curFree = previous;
         }
-        if(block == (metadata*) curPage + headerCounter - HEADER_SIZE){
+        if(block == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
         block = NULL;
