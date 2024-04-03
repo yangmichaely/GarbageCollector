@@ -47,7 +47,7 @@ void t_init(alloc_strat_e, void*);
 
 void* t_malloc(size_t);
 
-metadata* combine(metadata*);
+void combine(metadata*);
 
 void t_free(void*);
 
