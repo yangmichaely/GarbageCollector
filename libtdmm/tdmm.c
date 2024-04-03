@@ -229,7 +229,7 @@ void* worstFit(size_t size){
     return createUsedBlock(worstFit, size);
 }
 
-// //TODO: BUDDY
+//TODO: BUDDY
 // void* buddy(size_t size){
     
 // }
@@ -237,9 +237,9 @@ void* worstFit(size_t size){
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
+    void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if(allocStrat != BUDDY){
-        void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         curPage = headerMemory;
         freeHead = (metadata*) headerMemory;
         freeHead -> size = PAGE_SIZE;
@@ -251,6 +251,10 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
         usedHead = NULL;
         headerCounter = HEADER_SIZE;
     }
+    // else{
+    //     uint8_t* buddy = (uint8_t*) headerMemory;
+
+    // }
 }
 
 void* t_malloc(size_t size){
@@ -327,10 +331,15 @@ void t_free(void* ptr){
     }
 }
 
-//TODO: implement this
-void t_gcollect(void){
-//     void* bottom;
-//     for(void* i = bottom; i < stackBottom - 8; i += 8){
-//         //TODO: check every 8 bytes to see if they live on heap
-//     }
+void t_gcollect(){
+    void* stackTop;
+    for(void* i = stackBottom; i < stackTop; i += 8){
+        metadata* temp = usedHead;
+        while(temp != NULL){
+            if(temp -> usableMem == i){
+                t_free(temp);
+            }
+            temp = temp -> next;
+        }
+    }
 }
