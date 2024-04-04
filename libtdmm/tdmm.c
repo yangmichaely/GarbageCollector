@@ -141,13 +141,12 @@ void* createUsedBlock(metadata* block, size_t size){
             if(usedHead == NULL){
                 block -> prev = NULL;
                 usedHead = block;
-                curUsed = block;
             }
             else{
                 curUsed -> next = block;
                 block -> prev = curUsed;
-                curUsed = block;
             }
+            curUsed = block;
         }
         else{
             // newFree -> next = block -> next;
