@@ -132,11 +132,15 @@ void* createUsedBlock(metadata* block, size_t size){
             if(next != NULL){
                 next -> prev = previous;
             }
-            if(previous == NULL){
+            if(previous == NULL && next != NULL){
                 freeHead = next;
             }
-            if(next == NULL){
+            if(next == NULL && previous != NULL){
                 curFree = previous;
+            }
+            if(previous == NULL && next == NULL){
+                freeHead = NULL;
+                curFree = NULL;
             }
             block -> next = NULL;
             if(usedHead == NULL){
@@ -309,11 +313,15 @@ void t_free(void* ptr){
             if(next != NULL && next -> prev != NULL){
                 next -> prev = previous;
             }
-            if(previous == NULL){
+            if(previous == NULL && next != NULL){
                 usedHead = next;
             }
-            if(next == NULL){
+            if(next == NULL && previous != NULL){
                 curUsed = previous;
+            }
+            if(previous == NULL && next == NULL){
+                usedHead = NULL;
+                curUsed = NULL;
             }
             insertHeader(temp);
             combine(temp);

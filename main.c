@@ -4,10 +4,7 @@
 int main(){
     int x;
     t_init (FIRST_FIT, &x);
-    void* ptr1 = t_malloc(4096);
-
-    t_free(ptr1);
-
+    void* ptr1 = t_malloc(1054);
     void* ptr2 = t_malloc(105);
     void* ptr3 = t_malloc(104);
     void* ptr4 = t_malloc(154);
@@ -27,7 +24,7 @@ int main(){
     void* ptr18 = t_malloc(1074);
     void* ptr19 = t_malloc(12155);
 
-    
+    t_free(ptr1);
     t_free(ptr2);
     t_free(ptr3);
     t_free(ptr4);
