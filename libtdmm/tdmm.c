@@ -69,7 +69,7 @@ void* newHeader(){
     metadata* newHeader = NULL;
     if(headerCounter > PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        newHeader = (metadata*) curPage;
+        newHeader = curPage;
         headerCounter = HEADER_SIZE;
     }
     else{
@@ -201,13 +201,12 @@ void* createUsedBlock(metadata* block, size_t size){
         newUsed -> prev = NULL;
         if(usedHead == NULL){
             usedHead = newUsed;
-            curUsed = newUsed;
         }
         else{
             curUsed -> next = newUsed;
             newUsed -> prev = curUsed;
-            curUsed = newUsed;
         }
+        curUsed = newUsed;
         return newUsed -> usableMem;
     }
 }
