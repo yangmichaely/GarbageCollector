@@ -69,7 +69,7 @@ void* newHeader(){
     metadata* newHeader = NULL;
     if(headerCounter > PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        newHeader = curPage;
+        newHeader = (metadata*) curPage;
         headerCounter = HEADER_SIZE;
     }
     else{
