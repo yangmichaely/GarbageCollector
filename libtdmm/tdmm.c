@@ -321,7 +321,7 @@ void t_gcollect(){
         metadata* temp = usedHead;
         while(temp != NULL){
             if(temp -> usableMem == (metadata*) i){
-                t_free(temp);
+                t_free(temp -> usableMem);
                 break;
             }
             temp = temp -> next;
