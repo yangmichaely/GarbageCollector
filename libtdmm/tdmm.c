@@ -82,7 +82,7 @@ void* newHeader(){
 void insertHeader(metadata* cmp){
     metadata* temp = freeHead;
     int found = 0;
-    while(temp -> next != NULL){
+    while(temp != NULL && temp -> next != NULL){
         if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
             cmp -> next = temp -> next;
             temp -> next = cmp;
