@@ -25,12 +25,7 @@ metadata* searchFirstFit(size_t size){
         if(temp -> size >= size){
             return temp;
         }
-        if(temp -> next != NULL){
-            temp = temp -> next;
-        }
-        else{
-            break;
-        }
+        temp = temp -> next;
     }
     return NULL;
 }
@@ -46,12 +41,7 @@ metadata* searchBestFit(size_t size){
                 ans = temp;
             }
         }
-        if(temp -> next != NULL){
-            temp = temp -> next;
-        }
-        else{
-            break;
-        }
+        temp = temp -> next;
     }
     return ans;
 }
@@ -67,12 +57,7 @@ metadata* searchWorstFit(size_t size){
                 ans = temp;
             }
         }
-        if(temp -> next != NULL){
-            temp = temp -> next;
-        }
-        else{
-            break;
-        }
+        temp = temp -> next;
     }
     return ans;
 }
@@ -285,7 +270,7 @@ void combine(metadata* block){
         if(next == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
-        next = NULL;
+        //next = NULL;
     }
     if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
         previous -> size += block -> size;
@@ -299,9 +284,8 @@ void combine(metadata* block){
         if(block == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
-        block = NULL;
+        //block = NULL;
     }
-    //return block;
 }
 
 void t_free(void* ptr){
@@ -338,6 +322,7 @@ void t_gcollect(){
         while(temp != NULL){
             if(temp -> usableMem == i){
                 t_free(temp);
+                break;
             }
             temp = temp -> next;
         }
