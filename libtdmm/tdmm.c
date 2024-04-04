@@ -170,6 +170,8 @@ void* createUsedBlock(metadata* block, size_t size){
             }
             curUsed = block;
             metadata* newFree = newHeader();
+            newFree -> next = NULL;
+            newFree -> prev = NULL;
             newFree -> size = newSize;
             newFree -> usableMem = block -> usableMem + size;
             insertHeader(newFree);
