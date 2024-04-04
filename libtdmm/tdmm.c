@@ -155,12 +155,12 @@ void* createUsedBlock(metadata* block, size_t size){
             newFree -> prev = block -> prev;
             newFree -> size = newSize;
             newFree -> usableMem = block -> usableMem + size;
-            if(curFree == block){
-                curFree = newFree;
-            }
-            if(freeHead == block){
-                freeHead = newFree;
-            }
+            // if(curFree == block){
+            //     curFree = newFree;
+            // }
+            // if(freeHead == block){
+            //     freeHead = newFree;
+            // }
             block -> size = size;
             block -> next = NULL;
             block -> prev = NULL;
@@ -172,6 +172,7 @@ void* createUsedBlock(metadata* block, size_t size){
                 block -> prev = curUsed;
             }
             curUsed = block;
+            insertHeader(newFree);
         }
         return block -> usableMem;
     }
@@ -278,7 +279,7 @@ void combine(metadata* block){
             block -> next = NULL;
             curFree = block;
         }
-        //next = NULL;
+        next = NULL;
     }
     if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
         if(block == curPage + headerCounter - HEADER_SIZE){
@@ -293,7 +294,7 @@ void combine(metadata* block){
             previous -> next = NULL;
             curFree = previous;
         }
-        //block = NULL;
+        block = NULL;
     }
 }
 
@@ -328,8 +329,8 @@ void t_free(void* ptr){
 }
 
 void t_gcollect(){
-    void* stackTop;
-    for(void* i = stackBottom; i < stackTop; i += 8){
-        t_free(i);
-    }
+    // void* stackTop;
+    // for(void* i = stackBottom; i < stackTop; i += 8){
+    //     t_free(i);
+    // }
 }
