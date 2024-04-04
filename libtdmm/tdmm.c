@@ -308,7 +308,7 @@ void t_free(void* ptr){
             }
             insertHeader(temp);
             combine(temp);
-            //ptr = NULL;
+            ptr = NULL;
             break;
         }
         temp = temp -> next;
@@ -318,13 +318,6 @@ void t_free(void* ptr){
 void t_gcollect(){
     void* stackTop;
     for(void* i = stackBottom; i < stackTop; i += 8){
-        metadata* temp = usedHead;
-        while(temp != NULL){
-            if(temp -> usableMem == i){
-                t_free(temp -> usableMem);
-                break;
-            }
-            temp = temp -> next;
-        }
+        t_free(i);
     }
 }
