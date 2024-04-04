@@ -88,6 +88,7 @@ void insertHeader(metadata* cmp){
             temp -> next = cmp;
             cmp -> prev = temp;
             cmp -> next -> prev = cmp;
+            break;
         }
         temp = temp -> next;
     }
@@ -271,9 +272,6 @@ void combine(metadata* block){
         }
         else{
             curFree = block;
-            if(previous == NULL){
-                freeHead = block;
-            }
         }
         if(next == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
@@ -288,9 +286,6 @@ void combine(metadata* block){
         }
         else{
             curFree = previous;
-            if(previous -> prev == NULL){
-                freeHead = previous;
-            }
         }
         if(block == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
