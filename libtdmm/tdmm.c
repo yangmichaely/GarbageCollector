@@ -278,7 +278,7 @@ void combine(metadata* block){
             block -> next = NULL;
             curFree = block;
         }
-        next = NULL;
+        //next = NULL;
     }
     if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
         if(block == curPage + headerCounter - HEADER_SIZE){
@@ -293,7 +293,7 @@ void combine(metadata* block){
             previous -> next = NULL;
             curFree = previous;
         }
-        block = NULL;
+        //block = NULL;
     }
 }
 
