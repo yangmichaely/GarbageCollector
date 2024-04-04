@@ -36,6 +36,9 @@ metadata* searchBestFit(size_t size){
     metadata* temp = freeHead;
     while(temp != NULL){
         if(temp -> size >= size){
+            if(temp -> size == size){
+                return temp;
+            }
             if(temp -> size < minSize){
                 minSize = temp -> size;
                 ans = temp;
