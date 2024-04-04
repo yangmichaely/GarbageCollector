@@ -88,6 +88,7 @@ void insertHeader(metadata* cmp){
             temp -> next = cmp;
             cmp -> prev = temp;
             cmp -> next -> prev = cmp;
+            found = 1;
             break;
         }
         temp = temp -> next;
