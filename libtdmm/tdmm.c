@@ -270,7 +270,7 @@ void combine(metadata* block){
         if(next == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
-        //next = NULL;
+        next = NULL;
     }
     if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
         previous -> size += block -> size;
@@ -284,7 +284,7 @@ void combine(metadata* block){
         if(block == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
-        //block = NULL;
+        block = NULL;
     }
 }
 
@@ -308,7 +308,7 @@ void t_free(void* ptr){
             }
             insertHeader(temp);
             combine(temp);
-            ptr = NULL;
+            //ptr = NULL;
             break;
         }
         temp = temp -> next;
