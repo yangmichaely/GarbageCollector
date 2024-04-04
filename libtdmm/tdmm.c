@@ -229,9 +229,9 @@ void* worstFit(size_t size){
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
-    void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if(allocStrat != BUDDY){
+        void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         curPage = headerMemory;
         freeHead = (metadata*) headerMemory;
         freeHead -> size = PAGE_SIZE;
@@ -266,30 +266,32 @@ void combine(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
     if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
+        if(next == curPage + headerCounter - HEADER_SIZE){
+            headerCounter -= HEADER_SIZE;
+        }
         block -> size += next -> size;
-        block -> next = next -> next;
         if(next -> next != NULL){
+            block -> next = next -> next;
             (next -> next) -> prev = block;
         }
         else{
+            block -> next = NULL;
             curFree = block;
-        }
-        if(next == curPage + headerCounter - HEADER_SIZE){
-            headerCounter -= HEADER_SIZE;
         }
         next = NULL;
     }
     if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
+        if(block == curPage + headerCounter - HEADER_SIZE){
+            headerCounter -= HEADER_SIZE;
+        }
         previous -> size += block -> size;
-        previous -> next = block -> next;
         if(block -> next != NULL){
+            previous -> next = block -> next;
             (block -> next) -> prev = previous;
         }
         else{
+            previous -> next = NULL;
             curFree = previous;
-        }
-        if(block == curPage + headerCounter - HEADER_SIZE){
-            headerCounter -= HEADER_SIZE;
         }
         block = NULL;
     }
@@ -301,17 +303,17 @@ void t_free(void* ptr){
         if(temp -> usableMem == ptr){
             metadata* previous = temp -> prev;
             metadata* next = temp -> next;
-            if(previous != NULL && previous -> next != NULL){
+            if(previous != NULL){
                 previous -> next = next;
+                if(next == NULL){
+                    curUsed = previous;
+                }
             }
-            if(next != NULL && next -> prev != NULL){
+            if(next != NULL){
                 next -> prev = previous;
-            }
-            if(previous == NULL && next != NULL){
-                usedHead = next;
-            }
-            if(next == NULL && previous != NULL){
-                curUsed = previous;
+                if(previous == NULL){
+                    usedHead = next;
+                }
             }
             if(previous == NULL && next == NULL){
                 usedHead = NULL;
