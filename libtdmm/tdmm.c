@@ -108,6 +108,12 @@ void insertHeader(metadata* cmp){
             cmp -> next = NULL;
             curFree = cmp;
         }
+        else{
+            cmp -> next = NULL;
+            cmp -> prev = NULL;
+            freeHead = cmp;
+            curFree = cmp;
+        }
     }
 }
 
