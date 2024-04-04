@@ -258,6 +258,8 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
 }
 
 void* t_malloc(size_t size){
+    int align = 4 - size % 4;
+    size += align;
     switch(strat){
         case FIRST_FIT:
             return firstFit(size);
@@ -337,7 +339,7 @@ void t_free(void* ptr){
 
 void t_gcollect(){
     void* stackTop;
-    for(void* i = stackBottom; i < stackTop; i += 8){
+    for(void* i = stackTop; i < stackBottom; i++){
         t_free(i);
     }
 }
