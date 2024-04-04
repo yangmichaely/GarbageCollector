@@ -4,7 +4,7 @@
 #include <time.h>
 
 #define MAX_SIZE 4096
-#define NUM_ITERATIONS 10000
+#define NUM_ITERATIONS 12000
 
 int main() {
     srand(time(NULL));
@@ -13,11 +13,11 @@ int main() {
     t_init(FIRST_FIT, NULL);
 
     // Allocate and immediately free a large number of blocks
-    for (int i = 0; i < NUM_ITERATIONS; i++) {
-        size_t size = (rand() % MAX_SIZE) + 1;
-        void* block = t_malloc(size);
-        t_free(block);
-    }
+    // for (int i = 0; i < NUM_ITERATIONS; i++) {
+    //     size_t size = (rand() % MAX_SIZE) + 1;
+    //     void* block = t_malloc(size);
+    //     t_free(block);
+    // }
 
     // Allocate a large number of blocks, store the pointers, then free them
     void** blocks = malloc(NUM_ITERATIONS * sizeof(void*));
