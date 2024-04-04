@@ -320,7 +320,7 @@ void t_gcollect(){
     for(void* i = stackBottom; i < stackTop; i += 8){
         metadata* temp = usedHead;
         while(temp != NULL){
-            if(temp -> usableMem == (metadata*) i){
+            if(temp -> usableMem == i){
                 t_free(temp -> usableMem);
                 break;
             }
