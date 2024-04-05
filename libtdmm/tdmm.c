@@ -79,21 +79,6 @@ void* newHeader(){
     return newHeader;
 }
 
-void deleteHeader(metadata* head, metadata* tail, metadata* block){
-    if(head == block){
-        head = block->next; 
-    }
-    if(tail == block){
-        tail = block->prev; 
-    }
-    if(block->next != NULL){
-        block->next->prev = block->prev; 
-    }
-    if(block->prev != NULL){
-        block->prev->next = block->next; 
-    }
-}
-
 void insertHeader(metadata* cmp){
     metadata* temp = freeHead;
     int found = 0;
@@ -136,23 +121,22 @@ void* createUsedBlock(metadata* block, size_t size){
         if(newSize == 0){
             metadata* previous = block -> prev;
             metadata* next = block -> next;
-            // if(previous != NULL){
-            //     previous -> next = next;
-            // }
-            // if(next != NULL){
-            //     next -> prev = previous;
-            // }
-            // if(previous == NULL && next != NULL){
-            //     freeHead = next;
-            // }
-            // if(next == NULL && previous != NULL){
-            //     curFree = previous;
-            // }
-            // if(previous == NULL && next == NULL){
-            //     freeHead = NULL;
-            //     curFree = NULL;
-            // }
-            deleteHeader(freeHead, curFree, block);
+            if(previous != NULL){
+                previous -> next = next;
+            }
+            if(next != NULL){
+                next -> prev = previous;
+            }
+            if(previous == NULL && next != NULL){
+                freeHead = next;
+            }
+            if(next == NULL && previous != NULL){
+                curFree = previous;
+            }
+            if(previous == NULL && next == NULL){
+                freeHead = NULL;
+                curFree = NULL;
+            }
             block -> next = NULL;
             if(usedHead == NULL){
                 block -> prev = NULL;
@@ -177,14 +161,6 @@ void* createUsedBlock(metadata* block, size_t size){
             if(freeHead == block){
                 freeHead = newFree;
             }
-            // metadata* previous = block -> prev;
-            // metadata* next = block -> next;
-            // if(previous != NULL){
-            //     previous -> next = next;
-            // }
-            // if(next != NULL){
-            //     next -> prev = previous;
-            // }
             block -> size = size;
             block -> next = NULL;
             block -> prev = NULL;
@@ -330,23 +306,22 @@ void t_free(void* ptr){
         if(temp -> usableMem == ptr){
             metadata* previous = temp -> prev;
             metadata* next = temp -> next;
-            // if(previous != NULL){
-            //     previous -> next = next;
-            // }
-            // if(next != NULL){
-            //     next -> prev = previous;
-            // }
-            // if(previous == NULL && next != NULL){
-            //     usedHead = next;
-            // }
-            // if(next == NULL && previous != NULL){
-            //     curUsed = previous;
-            // }
-            // if(previous == NULL && next == NULL){
-            //     usedHead = NULL;
-            //     curUsed = NULL;
-            // }
-            deleteHeader(usedHead, curUsed, temp);
+            if(previous != NULL){
+                previous -> next = next;
+            }
+            if(next != NULL){
+                next -> prev = previous;
+            }
+            if(previous == NULL && next != NULL){
+                usedHead = next;
+            }
+            if(next == NULL && previous != NULL){
+                curUsed = previous;
+            }
+            if(previous == NULL && next == NULL){
+                usedHead = NULL;
+                curUsed = NULL;
+            }
             insertHeader(temp);
             combine(temp);
             break;
