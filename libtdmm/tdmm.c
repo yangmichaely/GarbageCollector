@@ -117,7 +117,7 @@ void insertHeader(metadata* cmp){
 
 void* createUsedBlock(metadata* block, size_t size){
     if(block != NULL){
-        uint64_t newSize = block -> size - size;
+        size_t newSize = block -> size - size;
         if(newSize == 0){
             metadata* previous = block -> prev;
             metadata* next = block -> next;
