@@ -67,7 +67,7 @@ metadata* searchWorstFit(size_t size){
 
 void* newHeader(){
     metadata* newHeader = NULL;
-    if(headerCounter > PAGE_SIZE){
+    if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         newHeader = curPage;
         headerCounter = HEADER_SIZE;
@@ -133,10 +133,10 @@ void* createUsedBlock(metadata* block, size_t size){
             if(next == NULL && previous != NULL){
                 curFree = previous;
             }
-            // if(previous == NULL && next == NULL){
-            //     freeHead = NULL;
-            //     curFree = NULL;
-            // }
+            if(previous == NULL && next == NULL){
+                freeHead = NULL;
+                curFree = NULL;
+            }
             block -> next = NULL;
             if(usedHead == NULL){
                 block -> prev = NULL;
