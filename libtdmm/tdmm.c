@@ -248,6 +248,7 @@ void* worstFit(size_t size){
 
 void* buddy(size_t size){
     metadata* buddyFit = searchBuddyFit(size);
+    size = buddyFit -> size;
     return createUsedBlock(buddyFit, size);
 }
 
