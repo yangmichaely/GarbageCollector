@@ -336,9 +336,11 @@ void t_free(void* ptr){
             }
             if(previous == NULL && next != NULL){
                 usedHead = next;
+                usedHead -> prev = NULL;
             }
             if(next == NULL && previous != NULL){
                 curUsed = previous;
+                curUsed -> next = NULL;
             }
             if(previous == NULL && next == NULL){
                 usedHead = NULL;
