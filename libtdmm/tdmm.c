@@ -326,10 +326,10 @@ void t_free(void* ptr){
             if(next == NULL){
                 curUsed = previous;
             }
-            // if(previous == NULL && next == NULL){
-            //     usedHead = NULL;
-            //     curUsed = NULL;
-            // }
+            if(previous == NULL && next == NULL){
+                usedHead = NULL;
+                curUsed = NULL;
+            }
             insertHeader(temp);
             combine(temp);
             break;
