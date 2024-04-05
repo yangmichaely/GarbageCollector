@@ -316,20 +316,20 @@ void t_free(void* ptr){
             metadata* next = temp -> next;
             if(previous != NULL){
                 previous -> next = next;
-                if(next == NULL){
-                    curUsed = previous;
-                }
+            }
+            if(previous == NULL){
+                usedHead = next;
             }
             if(next != NULL){
                 next -> prev = previous;
-                if(previous == NULL){
-                    usedHead = next;
-                }
             }
-            if(previous == NULL && next == NULL){
-                usedHead = NULL;
-                curUsed = NULL;
+            if(next == NULL){
+                curUsed = previous;
             }
+            // if(previous == NULL && next == NULL){
+            //     usedHead = NULL;
+            //     curUsed = NULL;
+            // }
             insertHeader(temp);
             combine(temp);
             break;
