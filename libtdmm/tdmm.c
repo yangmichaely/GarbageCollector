@@ -375,11 +375,12 @@ void t_gcollect(){
 
     metadata* temp = usedHead;
     while(temp != NULL){
-        for(void* mem = temp -> usableMem; mem < temp -> usableMem + temp -> size; mem++){
+        for(uint64_t mem = temp -> usableMem; mem < temp -> usableMem + temp -> size; mem++){
             metadata* freeTemp = freeHead;
             while(freeTemp != NULL){
                 if(mem >= freeTemp -> usableMem && mem < freeTemp -> usableMem + freeTemp -> size){
-                    mem = NULL;
+                    void* tempMem = mem;
+                    tempMem = NULL;
                     break;
                 }
                 freeTemp = freeTemp -> next;
