@@ -324,6 +324,7 @@ void t_free(void* ptr){
             }
             insertHeader(temp);
             combine(temp);
+            ptr = NULL;
             break;
         }
         temp = temp -> next;
