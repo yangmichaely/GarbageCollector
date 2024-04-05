@@ -31,7 +31,7 @@ metadata* searchFirstFit(size_t size){
 }
 
 metadata* searchBestFit(size_t size){
-    uint64_t minSize = UINT64_MAX;
+    size_t minSize = SIZE_MAX;
     metadata* ans = NULL;
     metadata* temp = freeHead;
     while(temp != NULL){
@@ -50,7 +50,7 @@ metadata* searchBestFit(size_t size){
 }
 
 metadata* searchWorstFit(size_t size){
-    uint64_t maxSize = 0;
+    size_t maxSize = 0;
     metadata* ans = NULL;
     metadata* temp = freeHead;
     while(temp != NULL){
