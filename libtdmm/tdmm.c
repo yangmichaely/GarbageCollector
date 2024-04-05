@@ -384,5 +384,6 @@ void t_gcollect(){
             }
             freeTemp = freeTemp -> next;
         }
+        temp = temp -> next;
     }
 }
