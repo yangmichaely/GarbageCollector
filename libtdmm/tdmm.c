@@ -258,8 +258,9 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
 }
 
 void* t_malloc(size_t size){
-    int align = 4 - size % 4;
-    size += align;
+    if(size % 4 != 0){
+        size += (4 - size % 4);
+    }
     switch(strat){
         case FIRST_FIT:
             return firstFit(size);
