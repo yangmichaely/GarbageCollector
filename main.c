@@ -10,7 +10,8 @@ int main() {
     srand(time(NULL));
 
     // Initialize the allocator
-    t_init(FIRST_FIT, NULL);
+    int a;
+    t_init(FIRST_FIT, &a);
 
     // Allocate and immediately free a large number of blocks
     for (int i = 0; i < NUM_ITERATIONS; i++) {

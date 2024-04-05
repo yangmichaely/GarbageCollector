@@ -66,13 +66,19 @@ metadata* searchWorstFit(size_t size){
 }
 
 void buddySplit(metadata* block){
-    metadata* newFree = newHeader();
-    newFree -> size = block -> size / 2;
-    newFree -> usableMem = block -> usableMem + newFree -> size;
-    newFree -> next = NULL;
-    newFree -> prev = NULL;
     block -> size /= 2;
-    insertHeader(newFree);
+    metadata* newFree = newHeader();
+    newFree -> size = block -> size;
+    newFree -> usableMem = block -> usableMem + newFree -> size;
+    newFree -> next = block -> next;
+    if(block -> next != NULL){
+        block -> next -> prev = newFree;
+    }
+    else{
+        curFree = newFree;
+    }
+    newFree -> prev = block;
+    block -> next = newFree;
 }
 
 metadata* searchBuddyFit(size_t size){
