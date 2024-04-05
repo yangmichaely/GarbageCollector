@@ -70,15 +70,18 @@ metadata* buddySplit(metadata* block){
     metadata* newFree = newHeader();
     newFree -> size = block -> size;
     newFree -> usableMem = block -> usableMem + newFree -> size;
-    newFree -> next = block -> next;
-    newFree -> prev = block;
-    block -> next = newFree;
-    if(newFree -> next != NULL){
-        newFree -> next -> prev = newFree;
-    }
-    else{
-        curFree = newFree;
-    }
+    // newFree -> next = block -> next;
+    // newFree -> prev = block;
+    // block -> next = newFree;
+    // if(newFree -> next != NULL){
+    //     newFree -> next -> prev = newFree;
+    // }
+    // else{
+    //     curFree = newFree;
+    // }
+    newFree -> next = NULL;
+    newFree -> prev = NULL;
+    insertHeader(newFree);
     return block;
 }
 
@@ -248,7 +251,9 @@ void* worstFit(size_t size){
 
 void* buddy(size_t size){
     metadata* buddyFit = searchBuddyFit(size);
-    size = buddyFit -> size;
+    if(buddyFit != NULL){
+        size = buddyFit -> size;
+    }
     return createUsedBlock(buddyFit, size);
 }
 
