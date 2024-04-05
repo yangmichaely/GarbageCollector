@@ -231,9 +231,8 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
     stackBottom = stBot;
     if(allocStrat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        void* headerMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        curPage = headerMemory;
-        freeHead = (metadata*) headerMemory;
+        curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        freeHead = curPage;
         freeHead -> size = PAGE_SIZE;
         freeHead -> usableMem = usableMemory;
         freeHead -> next = NULL;
