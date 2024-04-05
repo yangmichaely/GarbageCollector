@@ -70,15 +70,6 @@ metadata* buddySplit(metadata* block){
     metadata* newFree = newHeader();
     newFree -> size = block -> size;
     newFree -> usableMem = block -> usableMem + newFree -> size;
-    // newFree -> next = block -> next;
-    // newFree -> prev = block;
-    // block -> next = newFree;
-    // if(newFree -> next != NULL){
-    //     newFree -> next -> prev = newFree;
-    // }
-    // else{
-    //     curFree = newFree;
-    // }
     newFree -> next = NULL;
     newFree -> prev = NULL;
     insertHeader(newFree);
