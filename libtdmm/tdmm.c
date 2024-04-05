@@ -218,12 +218,16 @@ void* createUsedBlock(metadata* block, size_t size){
         newUsed -> prev = NULL;
         if(usedHead == NULL){
             usedHead = newUsed;
+            usedHead -> next = NULL;
+            usedHead -> prev = NULL;
+            curUsed = usedHead;
         }
         else{
             curUsed -> next = newUsed;
             newUsed -> prev = curUsed;
+            curUsed = newUsed;
+            curUsed -> next = NULL;
         }
-        curUsed = newUsed;
         return newUsed -> usableMem;
     }
 }
