@@ -31,6 +31,8 @@ metadata* searchWorstFit(size_t);
 
 void* newHeader();
 
+void deleteHeader(metadata*, metadata*, metadata*);
+
 void insertHeader(metadata* cmp);
 
 void* createUsedBlock(metadata*, size_t);
