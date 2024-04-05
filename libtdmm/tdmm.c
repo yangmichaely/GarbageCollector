@@ -379,7 +379,7 @@ void t_gcollect(){
         metadata* freeTemp = freeHead;
         while(freeTemp != NULL){
             if(mem >= freeTemp -> usableMem && mem < freeTemp -> usableMem + freeTemp -> size){
-                temp = NULL;
+                mem = NULL;
                 break;
             }
             freeTemp = freeTemp -> next;
