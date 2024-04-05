@@ -27,9 +27,13 @@ metadata* searchBestFit(size_t);
 
 metadata* searchWorstFit(size_t);
 
+metadata* buddySplit(metadata*);
+
+metadata* searchBuddyFit(size_t);
+
 void* newHeader();
 
-void insertHeader(metadata* cmp);
+void insertHeader(metadata*);
 
 void* createUsedBlock(metadata*, size_t);
 

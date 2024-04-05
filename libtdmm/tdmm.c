@@ -65,7 +65,7 @@ metadata* searchWorstFit(size_t size){
     return ans;
 }
 
-void buddySplit(metadata* block){
+metadata* buddySplit(metadata* block){
     block -> size /= 2;
     metadata* newFree = newHeader();
     newFree -> size = block -> size;
@@ -79,12 +79,13 @@ void buddySplit(metadata* block){
     else{
         curFree = newFree;
     }
+    return block;
 }
 
 metadata* searchBuddyFit(size_t size){
     metadata* bestFit = searchBestFit(size);
     while(bestFit != NULL && bestFit -> size / 2 >= size){
-        buddySplit(bestFit);
+        bestFit = buddySplit(bestFit);
     }
     return bestFit;
 }
