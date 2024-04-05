@@ -71,14 +71,14 @@ void buddySplit(metadata* block){
     newFree -> size = block -> size;
     newFree -> usableMem = block -> usableMem + newFree -> size;
     newFree -> next = block -> next;
-    if(block -> next != NULL){
+    newFree -> prev = block;
+    block -> next = newFree;
+    if(newFree -> next != NULL){
         newFree -> next -> prev = newFree;
     }
     else{
         curFree = newFree;
     }
-    newFree -> prev = block;
-    block -> next = newFree;
 }
 
 metadata* searchBuddyFit(size_t size){
