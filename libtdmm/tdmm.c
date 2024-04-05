@@ -328,11 +328,9 @@ void t_free(void* ptr){
         if(temp -> usableMem == ptr){
             metadata* previous = temp -> prev;
             metadata* next = temp -> next;
-            if(previous != NULL){
-                previous -> next = next;
-            }
-            if(next != NULL){
+            if(next != NULL && previous != NULL){
                 next -> prev = previous;
+                previous -> next = next;
             }
             if(previous == NULL && next != NULL){
                 usedHead = next;
