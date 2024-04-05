@@ -359,6 +359,17 @@ void t_free(void* ptr){
 void t_gcollect(){
     void* stackTop;
     for(void* i = stackTop; i < stackBottom; i++){
-        t_free(i);
+        int found = 0;
+        metadata* temp = usedHead;
+        while(temp != NULL){
+            if(i >= temp -> usableMem && i < temp -> usableMem + temp -> size){
+                found = 1;
+                break;
+            }
+            temp = temp -> next;
+        }
+        if(found == 0){
+            i = NULL;
+        }
     }
 }
