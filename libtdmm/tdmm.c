@@ -72,7 +72,7 @@ void buddySplit(metadata* block){
     newFree -> usableMem = block -> usableMem + newFree -> size;
     newFree -> next = block -> next;
     if(block -> next != NULL){
-        block -> next -> prev = newFree;
+        newFree -> next -> prev = newFree;
     }
     else{
         curFree = newFree;
