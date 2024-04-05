@@ -31,11 +31,14 @@ metadata* searchFirstFit(size_t size){
 }
 
 metadata* searchBestFit(size_t size){
-    size_t minSize = SIZE_MAX;
+    uint64_t minSize = UINT64_MAX;
     metadata* ans = NULL;
     metadata* temp = freeHead;
     while(temp != NULL){
         if(temp -> size >= size){
+            if(temp -> size == size){
+                return temp;
+            }
             if(temp -> size < minSize){
                 minSize = temp -> size;
                 ans = temp;
@@ -47,7 +50,7 @@ metadata* searchBestFit(size_t size){
 }
 
 metadata* searchWorstFit(size_t size){
-    size_t maxSize = 0;
+    uint64_t maxSize = 0;
     metadata* ans = NULL;
     metadata* temp = freeHead;
     while(temp != NULL){
@@ -64,7 +67,7 @@ metadata* searchWorstFit(size_t size){
 
 void* newHeader(){
     metadata* newHeader = NULL;
-    if(headerCounter == PAGE_SIZE){
+    if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         newHeader = curPage;
         headerCounter = HEADER_SIZE;
