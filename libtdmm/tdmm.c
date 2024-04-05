@@ -248,23 +248,17 @@ void* buddy(size_t size){
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
-    if(allocStrat != BUDDY){
-        void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        freeHead = curPage;
-        freeHead -> size = PAGE_SIZE;
-        freeHead -> usableMem = usableMemory;
-        freeHead -> next = NULL;
-        freeHead -> prev = NULL;
-        curFree = freeHead;
-        curUsed = NULL;
-        usedHead = NULL;
-        headerCounter = HEADER_SIZE;
-    }
-    // else{
-    //     uint8_t* buddy = (uint8_t*) headerMemory;
-
-    // }
+    void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    freeHead = curPage;
+    freeHead -> size = PAGE_SIZE;
+    freeHead -> usableMem = usableMemory;
+    freeHead -> next = NULL;
+    freeHead -> prev = NULL;
+    curFree = freeHead;
+    curUsed = NULL;
+    usedHead = NULL;
+    headerCounter = HEADER_SIZE;
 }
 
 void* t_malloc(size_t size){
@@ -319,39 +313,33 @@ void combine(metadata* block){
 }
 
 void t_free(void* ptr){
-    switch(strat){
-        case BUDDY:
-            break;
-        default:
-            metadata* temp = usedHead;
-            while(temp != NULL){
-                if(temp -> usableMem == ptr){
-                    metadata* previous = temp -> prev;
-                    metadata* next = temp -> next;
-                    if(previous != NULL){
-                        previous -> next = next;
-                    }
-                    if(next != NULL){
-                        next -> prev = previous;
-                    }
-                    if(previous == NULL && next != NULL){
-                        usedHead = next;
-                    }
-                    if(next == NULL && previous != NULL){
-                        curUsed = previous;
-                    }
-                    if(previous == NULL && next == NULL){
-                        usedHead = NULL;
-                        curUsed = NULL;
-                    }
-                    insertHeader(temp);
-                    combine(temp);
-                    ptr = NULL;
-                    break;
-                }
-                temp = temp -> next;
+    metadata* temp = usedHead;
+    while(temp != NULL){
+        if(temp -> usableMem == ptr){
+            metadata* previous = temp -> prev;
+            metadata* next = temp -> next;
+            if(previous != NULL){
+                previous -> next = next;
             }
+            if(next != NULL){
+                next -> prev = previous;
+            }
+            if(previous == NULL && next != NULL){
+                usedHead = next;
+            }
+            if(next == NULL && previous != NULL){
+                curUsed = previous;
+            }
+            if(previous == NULL && next == NULL){
+                usedHead = NULL;
+                curUsed = NULL;
+            }
+            insertHeader(temp);
+            combine(temp);
+            ptr = NULL;
             break;
+        }
+        temp = temp -> next;
     }
 }
 
