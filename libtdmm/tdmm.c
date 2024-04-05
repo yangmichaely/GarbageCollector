@@ -65,6 +65,25 @@ metadata* searchWorstFit(size_t size){
     return ans;
 }
 
+void buddySplit(metadata* block){
+    metadata* newFree = newHeader();
+    newFree -> size = block -> size / 2;
+    newFree -> usableMem = block -> usableMem + newFree -> size;
+    newFree -> next = NULL;
+    newFree -> prev = NULL;
+    block -> size /= 2;
+    block -> next = newFree;
+    insertHeader(newFree);
+}
+
+metadata* searchBuddyFit(size_t size){
+    metadata* bestFit = searchBestFit(size);
+    while(bestFit != NULL && bestFit -> size >= size){
+        buddySplit(bestFit);
+    }
+    return bestFit;
+}
+
 void* newHeader(){
     metadata* newHeader = NULL;
     if(headerCounter >= PAGE_SIZE){
@@ -221,10 +240,10 @@ void* worstFit(size_t size){
     return createUsedBlock(worstFit, size);
 }
 
-//TODO: BUDDY
-// void* buddy(size_t size){
-    
-// }
+void* buddy(size_t size){
+    metadata* buddyFit = searchBuddyFit(size);
+    return createUsedBlock(buddyFit, size);
+}
 
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
@@ -259,8 +278,8 @@ void* t_malloc(size_t size){
             return bestFit(size);
         case WORST_FIT:
             return worstFit(size);
-        // case BUDDY:
-        //     return buddy(size);
+        case BUDDY:
+            return buddy(size);
     }
 }
 
@@ -300,33 +319,39 @@ void combine(metadata* block){
 }
 
 void t_free(void* ptr){
-    metadata* temp = usedHead;
-    while(temp != NULL){
-        if(temp -> usableMem == ptr){
-            metadata* previous = temp -> prev;
-            metadata* next = temp -> next;
-            if(previous != NULL){
-                previous -> next = next;
-            }
-            if(next != NULL){
-                next -> prev = previous;
-            }
-            if(previous == NULL && next != NULL){
-                usedHead = next;
-            }
-            if(next == NULL && previous != NULL){
-                curUsed = previous;
-            }
-            if(previous == NULL && next == NULL){
-                usedHead = NULL;
-                curUsed = NULL;
-            }
-            insertHeader(temp);
-            combine(temp);
-            ptr = NULL;
+    switch(strat){
+        case BUDDY:
             break;
-        }
-        temp = temp -> next;
+        default:
+            metadata* temp = usedHead;
+            while(temp != NULL){
+                if(temp -> usableMem == ptr){
+                    metadata* previous = temp -> prev;
+                    metadata* next = temp -> next;
+                    if(previous != NULL){
+                        previous -> next = next;
+                    }
+                    if(next != NULL){
+                        next -> prev = previous;
+                    }
+                    if(previous == NULL && next != NULL){
+                        usedHead = next;
+                    }
+                    if(next == NULL && previous != NULL){
+                        curUsed = previous;
+                    }
+                    if(previous == NULL && next == NULL){
+                        usedHead = NULL;
+                        curUsed = NULL;
+                    }
+                    insertHeader(temp);
+                    combine(temp);
+                    ptr = NULL;
+                    break;
+                }
+                temp = temp -> next;
+            }
+            break;
     }
 }
 
