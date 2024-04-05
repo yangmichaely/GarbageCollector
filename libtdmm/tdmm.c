@@ -379,9 +379,11 @@ void t_gcollect(){
         while(freeTemp != NULL){
             void* start = (freeTemp -> usableMem > temp -> usableMem) ? freeTemp -> usableMem : temp -> usableMem;
             void* end = (freeTemp -> usableMem + freeTemp -> size < temp -> usableMem + temp -> size) ? freeTemp -> usableMem + freeTemp -> size : temp -> usableMem + temp -> size;
-            for(uint64_t i = (uint64_t) start; i < (uint64_t) end; i++){
-                void* ptr = &i;
+            for(void* i = start; i < end; i++){
+                uint64_t temp = i;
+                void* ptr = i;
                 ptr = NULL;
+                i = temp;
             }
             freeTemp = freeTemp -> next;
         }
