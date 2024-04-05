@@ -140,17 +140,19 @@ void* createUsedBlock(metadata* block, size_t size){
         if(newSize == 0){
             metadata* previous = block -> prev;
             metadata* next = block -> next;
-            if(previous != NULL){
-                previous -> next = next;
-            }
-            if(next != NULL){
+            if(next != NULL && previous != NULL){
                 next -> prev = previous;
+                previous -> next = next;
             }
             if(previous == NULL && next != NULL){
                 freeHead = next;
+                freeHead -> prev = NULL;
+                next -> prev = NULL;
             }
             if(next == NULL && previous != NULL){
                 curFree = previous;
+                curFree -> next = NULL;
+                previous -> next = NULL;
             }
             if(previous == NULL && next == NULL){
                 freeHead = NULL;
@@ -335,10 +337,12 @@ void t_free(void* ptr){
             if(previous == NULL && next != NULL){
                 usedHead = next;
                 usedHead -> prev = NULL;
+                next -> prev = NULL;
             }
             if(next == NULL && previous != NULL){
                 curUsed = previous;
                 curUsed -> next = NULL;
+                previous -> next = NULL;
             }
             if(previous == NULL && next == NULL){
                 usedHead = NULL;
