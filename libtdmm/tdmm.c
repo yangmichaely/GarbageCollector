@@ -309,37 +309,43 @@ void t_free(void* ptr){
     }
 }
 
-void t_gcollect(){
-    void* stackTop;
-    for(void* i = stackTop; i < stackBottom; i++){
-        int found = 0;
-        metadata* temp = usedHead;
-        while(temp != NULL){
-            if(i >= temp -> usableMem && i < temp -> usableMem + temp -> size){
-                found = 1;
-                break;
-            }
-            temp = temp -> next;
-        }
-        if(found == 0){
-            i = NULL;
-        }
-    }
-
+void mark(void* p){
     metadata* temp = usedHead;
     while(temp != NULL){
-        metadata* freeTemp = freeHead;
-        while(freeTemp != NULL){
-            void* start = (freeTemp -> usableMem > temp -> usableMem) ? freeTemp -> usableMem : temp -> usableMem;
-            void* end = (freeTemp -> usableMem + freeTemp -> size < temp -> usableMem + temp -> size) ? freeTemp -> usableMem + freeTemp -> size : temp -> usableMem + temp -> size;
-            for(void* i = start; i < end; i++){
-                uint64_t temp = i;
-                void* ptr = i;
-                ptr = NULL;
-                i = temp;
+        if(temp -> usableMem == p){
+            if(temp -> size % 4 == 0){
+                temp -> size++;
             }
-            freeTemp = freeTemp -> next;
+            break;
         }
         temp = temp -> next;
     }
+}
+
+void sweep(){
+    metadata* temp = usedHead;
+    while(temp != NULL){
+        if(temp -> size % 4 == 0){
+            removeElement(&usedHead, &curUsed, temp);
+            insertFreeHeader(temp);
+            combine(temp);
+        }
+        else{
+            temp -> size--;
+            temp = temp -> next;
+        }
+    }
+}
+
+void t_gcollect(){
+    void* stackTop;
+    for(void** i = (void**) stackTop; i < (void**) stackBottom; i++){
+        mark(*i);
+    }
+    for(metadata* i = usedHead; i != NULL; i = i -> next){
+        for(uint64_t j = 0; j < i -> size; j++){
+            mark(i -> usableMem + j);
+        }
+    }
+    sweep();
 }
