@@ -57,6 +57,10 @@ void combine(metadata*);
 
 void t_free(void*);
 
+void mark(void*);
+
+void sweep();
+
 void t_gcollect(void);
 
 #endif
