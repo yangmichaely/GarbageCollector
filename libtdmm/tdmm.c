@@ -326,7 +326,6 @@ void sweep(){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> size % 4 == 0){
-            //removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
         }
@@ -339,12 +338,12 @@ void sweep(){
 
 void t_gcollect(){
     void* stackTop;
-    for(void** i = (void**) stackTop; i < (void**) stackBottom; i++){
+    for(void** i = stackTop; (void**) i < stackBottom; i++){
         mark(*i);
     }
     for(metadata* i = usedHead; i != NULL; i = i -> next){
-        for(uint64_t j = 0; j < i -> size; j++){
-            mark(i -> usableMem + j);
+        for(void** j =(void**) (i -> usableMem); j < (void**) (i -> usableMem + i -> size); j++){
+            mark(*j);
         }
     }
     sweep();
