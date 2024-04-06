@@ -162,7 +162,9 @@ void* createUsedBlock(metadata* block, size_t size){
                 usedHead = block;
                 usedHead -> prev = NULL;
                 usedHead -> next = NULL;
-                curUsed = usedHead;
+                curUsed = block;
+                curUsed -> next = NULL;
+                curUsed -> prev = NULL;
             }
             else{
                 curUsed -> next = block;
@@ -188,7 +190,9 @@ void* createUsedBlock(metadata* block, size_t size){
                 usedHead = block;
                 usedHead -> next = NULL;
                 usedHead -> prev = NULL;
-                curUsed = usedHead;
+                curUsed = block;
+                curUsed -> next = NULL;
+                curUsed -> prev = NULL;
             }
             else{
                 curUsed -> next = block;
@@ -222,7 +226,9 @@ void* createUsedBlock(metadata* block, size_t size){
             usedHead = newUsed;
             usedHead -> next = NULL;
             usedHead -> prev = NULL;
-            curUsed = usedHead;
+            curUsed = block;
+            curUsed -> next = NULL;
+            curUsed -> prev = NULL;
         }
         else{
             curUsed -> next = newUsed;
@@ -373,20 +379,20 @@ void t_gcollect(){
         }
     }
 
-    metadata* temp = usedHead;
-    while(temp != NULL){
-        metadata* freeTemp = freeHead;
-        while(freeTemp != NULL){
-            void* start = (freeTemp -> usableMem > temp -> usableMem) ? freeTemp -> usableMem : temp -> usableMem;
-            void* end = (freeTemp -> usableMem + freeTemp -> size < temp -> usableMem + temp -> size) ? freeTemp -> usableMem + freeTemp -> size : temp -> usableMem + temp -> size;
-            for(void* i = start; i < end; i++){
-                uint64_t temp = i;
-                void* ptr = i;
-                ptr = NULL;
-                i = temp;
-            }
-            freeTemp = freeTemp -> next;
-        }
-        temp = temp -> next;
-    }
+    // metadata* temp = usedHead;
+    // while(temp != NULL){
+    //     metadata* freeTemp = freeHead;
+    //     while(freeTemp != NULL){
+    //         void* start = (freeTemp -> usableMem > temp -> usableMem) ? freeTemp -> usableMem : temp -> usableMem;
+    //         void* end = (freeTemp -> usableMem + freeTemp -> size < temp -> usableMem + temp -> size) ? freeTemp -> usableMem + freeTemp -> size : temp -> usableMem + temp -> size;
+    //         for(void* i = start; i < end; i++){
+    //             uint64_t temp = i;
+    //             void* ptr = i;
+    //             ptr = NULL;
+    //             i = temp;
+    //         }
+    //         freeTemp = freeTemp -> next;
+    //     }
+    //     temp = temp -> next;
+    // }
 }
