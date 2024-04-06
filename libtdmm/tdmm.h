@@ -37,7 +37,7 @@ void insertFreeHeader(metadata*);
 
 void insertUsedHeader(metadata*);
 
-void removeElement(metadata*, metadata*, metadata*);
+void removeElement(metadata**, metadata**, metadata*);
 
 void* createUsedBlock(metadata*, size_t);
 

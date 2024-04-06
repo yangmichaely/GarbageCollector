@@ -30,7 +30,7 @@ int main() {
     //     t_free(blocks[i]);
     // }
     //free(blocks);
-    void* ptr1 = t_malloc(120008);
+    void* ptr1 = t_malloc(128);
     void* ptr2 = t_malloc(128);
     t_free(ptr1);
     void* ptr3 = t_malloc(128);

@@ -149,7 +149,7 @@ void insertUsedHeader(metadata* block){
     }
 }
 
-void removeElement(metadata* head, metadata* cur, metadata* block){
+void removeElement(metadata** head, metadata** cur, metadata* block){
     metadata* previous = block -> prev;
     metadata* next = block -> next;
     if(next != NULL && previous != NULL){
@@ -157,18 +157,18 @@ void removeElement(metadata* head, metadata* cur, metadata* block){
         previous -> next = next;
     }
     if(previous == NULL && next != NULL){
-        head = next;
-        head -> prev = NULL;
+        (*head) = next;
+        (*head) -> prev = NULL;
         next -> prev = NULL;
     }
     if(next == NULL && previous != NULL){
-        cur = previous;
-        cur -> next = NULL;
+        (*cur) = previous;
+        (*cur) -> next = NULL;
         previous -> next = NULL;
     }
     if(previous == NULL && next == NULL){
-        head = NULL;
-        cur = NULL;
+        (*head) = NULL;
+        (*cur) = NULL;
     }
 }
 
@@ -176,7 +176,7 @@ void* createUsedBlock(metadata* block, size_t size){
     if(block != NULL){
         size_t newSize = block -> size - size;
         if(newSize == 0){
-            removeElement(freeHead, curFree, block);
+            removeElement(&freeHead, &curFree, block);
             insertUsedHeader(block);
         }
         else{
@@ -184,9 +184,9 @@ void* createUsedBlock(metadata* block, size_t size){
             metadata* next = block -> next;
             metadata* prev = block -> prev;
             metadata* newFree = newHeader(newSize, block -> usableMem + size, next, prev);
-            removeElement(freeHead, curFree, block);
-            insertUsedHeader(block);
+            removeElement(&freeHead, &curFree, block);
             insertFreeHeader(newFree);
+            insertUsedHeader(block);
             // if(curFree == block){
             //     curFree = newFree;
             // }
@@ -306,7 +306,7 @@ void t_free(void* ptr){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> usableMem == ptr){
-            removeElement(usedHead, curUsed, temp);
+            removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
             break;
