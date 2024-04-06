@@ -67,12 +67,8 @@ metadata* searchWorstFit(size_t size){
 
 metadata* buddySplit(metadata* block){
     block -> size /= 2;
-    metadata* newFree = newHeader();
-    newFree -> size = block -> size;
-    newFree -> usableMem = block -> usableMem + newFree -> size;
-    newFree -> next = NULL;
-    newFree -> prev = NULL;
-    insertHeader(newFree);
+    metadata* newFree = newHeader(block -> size, block -> usableMem + block -> size, NULL, NULL);
+    insertFreeHeader(newFree);
     return block;
 }
 
@@ -84,7 +80,7 @@ metadata* searchBuddyFit(size_t size){
     return bestFit;
 }
 
-void* newHeader(){
+void* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev){
     metadata* newHeader = NULL;
     if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -95,10 +91,14 @@ void* newHeader(){
         newHeader = curPage + headerCounter;
         headerCounter += HEADER_SIZE;
     }
+    newHeader -> size = size;
+    newHeader -> usableMem = usableMem;
+    newHeader -> next = next;
+    newHeader -> prev = prev;
     return newHeader;
 }
 
-void insertHeader(metadata* cmp){
+void insertFreeHeader(metadata* cmp){
     metadata* temp = freeHead;
     int found = 0;
     while(temp != NULL && temp -> next != NULL){
@@ -134,53 +134,53 @@ void insertHeader(metadata* cmp){
     }
 }
 
+void insertUsedHeader(metadata* block){
+    if(usedHead == NULL){
+        usedHead = block;
+        usedHead -> next = NULL;
+        usedHead -> prev = NULL;
+        curUsed = usedHead;
+    }
+    else{
+        curUsed -> next = block;
+        block -> prev = curUsed;
+        curUsed = block;
+        curUsed -> next = NULL;
+    }
+}
+
+void removeElement(metadata* head, metadata* cur, metadata* block){
+    metadata* previous = block -> prev;
+    metadata* next = block -> next;
+    if(next != NULL && previous != NULL){
+        next -> prev = previous;
+        previous -> next = next;
+    }
+    if(previous == NULL && next != NULL){
+        head = next;
+        head -> prev = NULL;
+        next -> prev = NULL;
+    }
+    if(next == NULL && previous != NULL){
+        cur = previous;
+        cur -> next = NULL;
+        previous -> next = NULL;
+    }
+    if(previous == NULL && next == NULL){
+        head = NULL;
+        cur = NULL;
+    }
+}
+
 void* createUsedBlock(metadata* block, size_t size){
     if(block != NULL){
         size_t newSize = block -> size - size;
         if(newSize == 0){
-            metadata* previous = block -> prev;
-            metadata* next = block -> next;
-            if(next != NULL && previous != NULL){
-                next -> prev = previous;
-                previous -> next = next;
-            }
-            if(previous == NULL && next != NULL){
-                freeHead = next;
-                freeHead -> prev = NULL;
-                next -> prev = NULL;
-            }
-            if(next == NULL && previous != NULL){
-                curFree = previous;
-                curFree -> next = NULL;
-                previous -> next = NULL;
-            }
-            if(previous == NULL && next == NULL){
-                freeHead = NULL;
-                curFree = NULL;
-            }
-            if(usedHead == NULL){
-                usedHead -> size = block -> size;
-                usedHead -> usableMem = block -> usableMem;
-                usedHead -> prev = NULL;
-                usedHead -> next = NULL;
-                curUsed -> size =  block -> size;
-                curUsed -> usableMem = block -> usableMem;
-                curUsed -> next = NULL;
-                curUsed -> prev = NULL;
-            }
-            else{
-                curUsed -> next = block;
-                block -> prev = curUsed;
-                curUsed = block;
-                curUsed -> next = NULL;
-            }
+            removeElement(freeHead, curFree, block);
+            insertUsedHeader(block);
         }
         else{
-            metadata* newFree = newHeader();
-            newFree -> next = block -> next;
-            newFree -> prev = block -> prev;
-            newFree -> size = newSize;
-            newFree -> usableMem = block -> usableMem + size;
+            metadata* newFree = newHeader(newSize, block -> usableMem + size, block -> next, block -> prev);
             if(curFree == block){
                 curFree = newFree;
             }
@@ -188,22 +188,7 @@ void* createUsedBlock(metadata* block, size_t size){
                 freeHead = newFree;
             }
             block -> size = size;
-            if(usedHead == NULL){
-                usedHead -> size = block -> size;
-                usedHead -> usableMem = block -> usableMem;
-                usedHead -> next = NULL;
-                usedHead -> prev = NULL;
-                curUsed -> size =  block -> size;
-                curUsed -> usableMem = block -> usableMem;
-                curUsed -> next = NULL;
-                curUsed -> prev = NULL;
-            }
-            else{
-                curUsed -> next = block;
-                block -> prev = curUsed;
-                curUsed = block;
-                curUsed -> next = NULL;
-            }
+            insertUsedHeader(block);
         }
         return block -> usableMem;
     }
@@ -211,35 +196,14 @@ void* createUsedBlock(metadata* block, size_t size){
         void* newMem;
         if(size < PAGE_SIZE){
             newMem = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-            metadata* newFree = newHeader();
-            newFree -> next = NULL;
-            newFree -> prev = NULL;
-            newFree -> size = PAGE_SIZE - size;
-            newFree -> usableMem = newMem + size;
-            insertHeader(newFree);
+            metadata* newFree = newHeader(PAGE_SIZE - size, newMem + size, NULL, NULL);
+            insertFreeHeader(newFree);
         }
         else{
             newMem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         }
-        metadata* newUsed = newHeader();
-        newUsed -> usableMem = newMem;
-        newUsed -> size = size;
-        newUsed -> next = NULL;
-        newUsed -> prev = NULL;
-        if(usedHead == NULL){
-            usedHead = newUsed;
-            usedHead -> next = NULL;
-            usedHead -> prev = NULL;
-            curUsed = newUsed;
-            curUsed -> next = NULL;
-            curUsed -> prev = NULL;
-        }
-        else{
-            curUsed -> next = newUsed;
-            newUsed -> prev = curUsed;
-            curUsed = newUsed;
-            curUsed -> next = NULL;
-        }
+        metadata* newUsed = newHeader(size, newMem, NULL, NULL);
+        insertUsedHeader(newUsed);
         return newUsed -> usableMem;
     }
 }
@@ -338,27 +302,8 @@ void t_free(void* ptr){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> usableMem == ptr){
-            metadata* previous = temp -> prev;
-            metadata* next = temp -> next;
-            if(next != NULL && previous != NULL){
-                next -> prev = previous;
-                previous -> next = next;
-            }
-            if(previous == NULL && next != NULL){
-                usedHead = next;
-                usedHead -> prev = NULL;
-                next -> prev = NULL;
-            }
-            if(next == NULL && previous != NULL){
-                curUsed = previous;
-                curUsed -> next = NULL;
-                previous -> next = NULL;
-            }
-            if(previous == NULL && next == NULL){
-                usedHead = NULL;
-                curUsed = NULL;
-            }
-            insertHeader(temp);
+            removeElement(usedHead, curUsed, temp);
+            insertFreeHeader(temp);
             combine(temp);
             break;
         }
