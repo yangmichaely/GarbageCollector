@@ -180,6 +180,8 @@ void* createUsedBlock(metadata* block, size_t size){
             insertUsedHeader(block);
         }
         else{
+            block -> size = size;
+            insertUsedHeader(block);
             metadata* newFree = newHeader(newSize, block -> usableMem + size, block -> next, block -> prev);
             insertFreeHeader(newFree);
             // if(curFree == block){
@@ -188,8 +190,6 @@ void* createUsedBlock(metadata* block, size_t size){
             // if(freeHead == block){
             //     freeHead = newFree;
             // }
-            block -> size = size;
-            insertUsedHeader(block);
         }
         return block -> usableMem;
     }
