@@ -187,12 +187,6 @@ void* createUsedBlock(metadata* block, size_t size){
             removeElement(&freeHead, &curFree, block);
             insertFreeHeader(newFree);
             insertUsedHeader(block);
-            // if(curFree == block){
-            //     curFree = newFree;
-            // }
-            // if(freeHead == block){
-            //     freeHead = newFree;
-            // }
         }
         return block -> usableMem;
     }
@@ -332,20 +326,20 @@ void t_gcollect(){
         }
     }
 
-    // metadata* temp = usedHead;
-    // while(temp != NULL){
-    //     metadata* freeTemp = freeHead;
-    //     while(freeTemp != NULL){
-    //         void* start = (freeTemp -> usableMem > temp -> usableMem) ? freeTemp -> usableMem : temp -> usableMem;
-    //         void* end = (freeTemp -> usableMem + freeTemp -> size < temp -> usableMem + temp -> size) ? freeTemp -> usableMem + freeTemp -> size : temp -> usableMem + temp -> size;
-    //         for(void* i = start; i < end; i++){
-    //             uint64_t temp = i;
-    //             void* ptr = i;
-    //             ptr = NULL;
-    //             i = temp;
-    //         }
-    //         freeTemp = freeTemp -> next;
-    //     }
-    //     temp = temp -> next;
-    // }
+    metadata* temp = usedHead;
+    while(temp != NULL){
+        metadata* freeTemp = freeHead;
+        while(freeTemp != NULL){
+            void* start = (freeTemp -> usableMem > temp -> usableMem) ? freeTemp -> usableMem : temp -> usableMem;
+            void* end = (freeTemp -> usableMem + freeTemp -> size < temp -> usableMem + temp -> size) ? freeTemp -> usableMem + freeTemp -> size : temp -> usableMem + temp -> size;
+            for(void* i = start; i < end; i++){
+                uint64_t temp = i;
+                void* ptr = i;
+                ptr = NULL;
+                i = temp;
+            }
+            freeTemp = freeTemp -> next;
+        }
+        temp = temp -> next;
+    }
 }
