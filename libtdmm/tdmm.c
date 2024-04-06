@@ -181,7 +181,9 @@ void* createUsedBlock(metadata* block, size_t size){
         }
         else{
             block -> size = size;
-            metadata* newFree = newHeader(newSize, block -> usableMem + size, block -> next, block -> prev);
+            metadata* next = block -> next;
+            metadata* prev = block -> prev;
+            metadata* newFree = newHeader(newSize, block -> usableMem + size, next, prev);
             removeElement(freeHead, curFree, block);
             insertUsedHeader(block);
             insertFreeHeader(newFree);
