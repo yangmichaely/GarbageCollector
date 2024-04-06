@@ -80,7 +80,7 @@ metadata* searchBuddyFit(size_t size){
     return bestFit;
 }
 
-void* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev){
+metadata* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev){
     metadata* newHeader = NULL;
     if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);

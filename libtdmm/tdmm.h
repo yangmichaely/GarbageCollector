@@ -31,7 +31,7 @@ metadata* buddySplit(metadata*);
 
 metadata* searchBuddyFit(size_t);
 
-void* newHeader(size_t, void*, metadata*, metadata*);
+metadata* newHeader(size_t, void*, metadata*, metadata*);
 
 void insertFreeHeader(metadata*);
 
