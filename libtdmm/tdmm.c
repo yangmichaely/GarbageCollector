@@ -326,14 +326,14 @@ void sweep(){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> size % 4 == 0){
-            removeElement(&usedHead, &curUsed, temp);
+            //removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
         }
         else{
             temp -> size--;
-            temp = temp -> next;
         }
+        temp = temp -> next;
     }
 }
 
