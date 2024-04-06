@@ -11,7 +11,7 @@ int main() {
 
     // Initialize the allocator
     int a;
-    t_init(BUDDY, &a);
+    t_init(FIRST_FIT, &a);
 
     // Allocate and immediately free a large number of blocks
     // for (int i = 0; i < NUM_ITERATIONS; i++) {
@@ -31,10 +31,10 @@ int main() {
     // }
     // free(blocks);
     void* ptr1 = t_malloc(120008);
-    void* ptr2 = t_malloc(128);
-    t_free(ptr1);
-    void* ptr3 = t_malloc(128);
-    t_free(ptr2);
-    t_free(ptr3);
+    // void* ptr2 = t_malloc(128);
+    // t_free(ptr1);
+    // void* ptr3 = t_malloc(128);
+    // t_free(ptr2);
+    // t_free(ptr3);
     return 0;
 }
