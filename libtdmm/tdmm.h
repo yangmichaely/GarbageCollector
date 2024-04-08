@@ -57,7 +57,7 @@ void combine(metadata*);
 
 void t_free(void*);
 
-void mark(void*);
+void mark(uint64_t*);
 
 void sweep();
 
