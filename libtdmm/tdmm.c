@@ -312,7 +312,7 @@ void t_free(void* ptr){
 void mark(void* p){
     metadata* temp = usedHead;
     while(temp != NULL){
-        if(temp -> usableMem == p){
+        if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
             if(temp -> size % 4 == 0){
                 temp -> size++;
             }
@@ -342,10 +342,12 @@ void t_gcollect(){
     for(void** i = (void**) stackTop; i < (void**) stackBottom; i++){
         mark(*i);
     }
-    for(metadata* i = usedHead; i != NULL; i = i -> next){
-        for(void** j = (void**) (i -> usableMem); j < (void**) (i -> usableMem + i -> size); j++){
+    metadata* temp = usedHead;
+    while(temp != NULL){
+        for(void** j = (void**) (temp -> usableMem); j < (void**) (temp -> usableMem + temp -> size); j++){
             mark(*j);
         }
+        temp = temp -> next;
     }
     sweep();
 }
