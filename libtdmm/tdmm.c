@@ -339,8 +339,8 @@ void sweep(){
 
 void t_gcollect(){
     void* stackTop;
-    for(void** i = (void**) stackTop; i < (void**) stackBottom; i++){
-        mark(*i);
+    for(void* i = stackTop; i < stackBottom; i++){
+        mark(i);
     }
     metadata* temp = usedHead;
     while(temp != NULL){
