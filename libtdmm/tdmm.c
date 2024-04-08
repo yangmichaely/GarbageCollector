@@ -339,7 +339,7 @@ void sweep(){
 
 void t_gcollect(){
     void* stackTop;
-    for(void* i = stackTop; i < stackBottom; i++){
+    for(uint64_t* i = stackTop; i < (uint64_t*) stackBottom; i++){
         mark(i);
     }
     metadata* temp = usedHead;
