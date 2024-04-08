@@ -4,6 +4,7 @@
 #define HEADER_SIZE 32
 
 #include <stddef.h>
+#include <stdint.h>
 
 typedef enum{
     FIRST_FIT,

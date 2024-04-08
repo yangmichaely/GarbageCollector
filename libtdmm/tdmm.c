@@ -312,7 +312,7 @@ void t_free(void* ptr){
 void mark(uint64_t* p){
     metadata* temp = usedHead;
     while(temp != NULL){
-        if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
+        if((uint64_t*) temp -> usableMem <= p && (uint64_t*) (temp -> usableMem + temp -> size) > p){
             if(temp -> size % 4 == 0){
                 temp -> size++;
             }
