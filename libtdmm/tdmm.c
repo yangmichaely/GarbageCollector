@@ -345,7 +345,7 @@ void t_gcollect(){
     metadata* temp = usedHead;
     while(temp != NULL){
         for(void** j = (void**) (temp -> usableMem); j < (void**) (temp -> usableMem + temp -> size); j++){
-            mark(*j);
+            mark(*(uint64_t*) *j);
         }
         temp = temp -> next;
     }
