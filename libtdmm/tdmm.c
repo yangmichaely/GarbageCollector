@@ -365,7 +365,7 @@ void t_gcollect(){
     //     }
     //     temp = temp -> next;
     // }
-    // sweep();
+    sweep();
 }
 
 double get_memory_usage_percentage(){
