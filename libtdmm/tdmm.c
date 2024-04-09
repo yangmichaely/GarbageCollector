@@ -322,7 +322,7 @@ void t_free(void* ptr){
 void mark(void* p){
     metadata* temp = usedHead;
     while(temp != NULL){
-        printf("p: %p, temp usablemem: %p\n", p, temp -> usableMem);
+        //printf("p: %p, temp usablemem: %p\n", p, temp -> usableMem);
         if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
             if(temp -> size % 4 == 0){
                 temp -> size++;
