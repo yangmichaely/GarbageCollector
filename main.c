@@ -46,24 +46,24 @@ int main() {
     // printf("%f\n", get_memory_usage_percentage());
     // t_free(ptr3);
     // printf("%f\n", get_memory_usage_percentage());
-    // for(int i = 0; i < 1000; i++){
-    //     for(int j = 0; j < 100; j++){
-    //         t_malloc(1000);
-    //     }
-    //     t_gcollect();
-    // }
+    for(int i = 0; i < 1000; i++){
+        for(int j = 0; j < 100; j++){
+            t_malloc(1000);
+        }
+        t_gcollect();
+    }
 
-    clock_t start = clock();
-    void* block = t_malloc(100);
-    clock_t end = clock();
-    clock_t time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-    printf("t_malloc took %f seconds to execute \n", time_taken);
+    // clock_t start = clock();
+    // void* block = t_malloc(100);
+    // clock_t end = clock();
+    // clock_t time_taken = ((double)end - start) / CLOCKS_PER_SEC;
+    // printf("t_malloc took %f seconds to execute \n", time_taken);
 
-    start = clock();
-    t_free(block);
-    end = clock();
-    time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-    printf("t_free took %f seconds to execute \n", time_taken);
+    // start = clock();
+    // t_free(block);
+    // end = clock();
+    // time_taken = ((double)end - start) / CLOCKS_PER_SEC;
+    // printf("t_free took %f seconds to execute \n", time_taken);
 
     return 0;
 }

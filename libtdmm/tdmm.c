@@ -322,7 +322,8 @@ void t_free(void* ptr){
 void mark(void* p){
     metadata* temp = usedHead;
     while(temp != NULL){
-        if(temp -> usableMem <= &p && temp -> usableMem + temp -> size > &p){
+        printf("p: %p\n, temp usablemem: %p\n", p, temp -> usableMem);
+        if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
             if(temp -> size % 4 == 0){
                 temp -> size++;
             }
@@ -337,7 +338,7 @@ void sweep(){
     while(temp != NULL){
         if(temp -> size % 4 == 0){
             counter++;
-            printf("found: %d\n", counter);
+            //printf("found: %d\n", counter);
             removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
@@ -352,12 +353,12 @@ void sweep(){
 void t_gcollect(){
     void* stackTop;
     for(char** i = (char**) &stackTop; i < (char**) stackBottom; i++){
-        mark(*i);
+        mark(&i);
     }
     metadata* temp = usedHead;
     while(temp != NULL){
         for(char** j = (char**) (temp -> usableMem); j < (char**) (temp -> usableMem + temp -> size); j++){
-            mark(*j);
+            mark(&j);
         }
         temp = temp -> next;
     }
