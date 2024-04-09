@@ -18,7 +18,6 @@ metadata* curUsed;
 uint64_t headerCounter;
 void* stackBottom;
 void* curPage;
-int counter = 0;
 size_t total_memory_allocated = 0;
 size_t memory_in_use = 0;
 
@@ -324,9 +323,12 @@ void t_free(void* ptr){
 void mark(void* p){
     metadata* temp = usedHead;
     while(temp != NULL){
+        printf("p: %p, temp usablemem: %p\n", p, temp -> usableMem);
         if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
-            //printf("p: %p, temp usablemem: %p\n", p, temp -> usableMem);
+            printf("tempsize: %d\n", temp -> size);
+            
             if(temp -> size % 4 == 0){
+                
                 temp -> size++;
             }
             break;
@@ -339,8 +341,6 @@ void sweep(){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> size % 4 == 0){
-            counter++;
-            //printf("found: %d\n", counter);
             removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
@@ -355,16 +355,16 @@ void sweep(){
 void t_gcollect(){
     void* stackTop;
     for(void* i = (void*) &stackTop; i < (void*) stackBottom; i++){
-        //printf("i: %p\n", i);
+        printf("i: %p\n", i);
         mark(i);
     }
-    // metadata* temp = usedHead;
-    // while(temp != NULL){
-    //     for(void* j = (void*) (temp -> usableMem); j < (void*) (temp -> usableMem + temp -> size); j++){
-    //         mark(j);
-    //     }
-    //     temp = temp -> next;
-    // }
+    metadata* temp = usedHead;
+    while(temp != NULL){
+        for(void* j = (void*) (temp -> usableMem); j < (void*) (temp -> usableMem + temp -> size); j += 8){
+            mark(j);
+        }
+        temp = temp -> next;
+    }
     sweep();
 }
 
