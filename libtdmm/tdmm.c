@@ -273,7 +273,8 @@ void* t_malloc(size_t size){
 void combine(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
-    if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
+    if(next != NULL && (strat != BUDDY || (strat == BUDDY && next -> size == block -> size))
+    && block -> usableMem + block -> size == next -> usableMem){
         if(next == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
@@ -288,7 +289,8 @@ void combine(metadata* block){
         }
         next = NULL;
     }
-    if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
+    if(previous != NULL && (strat != BUDDY || (strat == BUDDY && previous -> size == block -> size))
+    && previous -> usableMem + previous -> size == block -> usableMem){
         if(block == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
