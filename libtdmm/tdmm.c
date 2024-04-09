@@ -18,6 +18,9 @@ metadata* curUsed;
 uint64_t headerCounter;
 void* stackBottom;
 void* curPage;
+int counter = 0;
+size_t total_memory_allocated = 0;
+size_t memory_in_use = 0;
 
 metadata* searchFirstFit(size_t size){
     metadata* temp = freeHead;
@@ -84,6 +87,7 @@ metadata* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev
     metadata* newHeader = NULL;
     if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        total_memory_allocated += PAGE_SIZE;
         newHeader = curPage;
         headerCounter = HEADER_SIZE;
     }
@@ -173,6 +177,7 @@ void removeElement(metadata** head, metadata** cur, metadata* block){
 }
 
 void* createUsedBlock(metadata* block, size_t size){
+    memory_in_use += size;
     if(block != NULL){
         size_t newSize = block -> size - size;
         if(newSize == 0){
@@ -194,11 +199,13 @@ void* createUsedBlock(metadata* block, size_t size){
         void* newMem;
         if(size < PAGE_SIZE){
             newMem = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+            total_memory_allocated += PAGE_SIZE;
             metadata* newFree = newHeader(PAGE_SIZE - size, newMem + size, NULL, NULL);
             insertFreeHeader(newFree);
         }
         else{
             newMem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+            total_memory_allocated += size;
         }
         metadata* newUsed = newHeader(size, newMem, NULL, NULL);
         insertUsedHeader(newUsed);
@@ -233,7 +240,9 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
     void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    total_memory_allocated += PAGE_SIZE;
     curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    total_memory_allocated += PAGE_SIZE;
     freeHead = curPage;
     freeHead -> size = PAGE_SIZE;
     freeHead -> usableMem = usableMemory;
@@ -300,6 +309,7 @@ void t_free(void* ptr){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> usableMem == ptr){
+            memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
@@ -309,10 +319,10 @@ void t_free(void* ptr){
     }
 }
 
-void mark(uint64_t* p){
+void mark(void* p){
     metadata* temp = usedHead;
     while(temp != NULL){
-        if((uint64_t*) temp -> usableMem <= p && (uint64_t*) (temp -> usableMem + temp -> size) > p){
+        if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
             if(temp -> size % 4 == 0){
                 temp -> size++;
             }
@@ -326,6 +336,8 @@ void sweep(){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> size % 4 == 0){
+            counter++;
+            printf("found: %d\n", counter);
             removeElement(&usedHead, &curUsed, temp);
             insertFreeHeader(temp);
             combine(temp);
@@ -339,15 +351,19 @@ void sweep(){
 
 void t_gcollect(){
     void* stackTop;
-    for(uint64_t* i = stackTop; i < (uint64_t*) stackBottom; i++){
-        mark(i);
+    for(void** i = (void**) stackTop; i < (void**) stackBottom; i++){
+        mark(*i);
     }
     metadata* temp = usedHead;
     while(temp != NULL){
-        for(uint64_t* j = (uint64_t*) (temp -> usableMem); j < (uint64_t*) (temp -> usableMem + temp -> size); j++){
-            mark(j);
+        for(void** j = (void**) (temp -> usableMem); j < (void**) (temp -> usableMem + temp -> size); j++){
+            mark(*j);
         }
         temp = temp -> next;
     }
     sweep();
+}
+
+double get_memory_usage_percentage(){
+    return ((double)memory_in_use / total_memory_allocated) * 100;
 }

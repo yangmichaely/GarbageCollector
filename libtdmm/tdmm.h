@@ -4,7 +4,6 @@
 #define HEADER_SIZE 32
 
 #include <stddef.h>
-#include <stdint.h>
 
 typedef enum{
     FIRST_FIT,
@@ -58,10 +57,12 @@ void combine(metadata*);
 
 void t_free(void*);
 
-void mark(uint64_t*);
+void mark(void*);
 
 void sweep();
 
-void t_gcollect(void);
+void t_gcollect();
+
+double get_memory_usage_percentage();
 
 #endif
