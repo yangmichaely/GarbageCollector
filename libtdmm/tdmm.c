@@ -354,18 +354,24 @@ void sweep(){
 
 void t_gcollect(){
     void* stackTop;
-    for(void* i = (void*) &stackTop; i < (void*) stackBottom; i++){
+    for(void** i = (void**) &stackTop; i < (void**) stackBottom; i++){
         printf("i: %p\n", i);
         mark(i);
     }
     metadata* temp = usedHead;
     while(temp != NULL){
-        for(void* j = (void*) (temp -> usableMem); j < (void*) (temp -> usableMem + temp -> size); j += 8){
+        for(void** j = (void**) (temp -> usableMem); j < (void**) (temp -> usableMem + temp -> size); j++){
             mark(j);
         }
         temp = temp -> next;
     }
     sweep();
+    if(usedHead == NULL){
+        printf("usedHead is NULL\n");
+    }
+    else{
+        printf("usedHead is not NULL\n");
+    }
 }
 
 double get_memory_usage_percentage(){
