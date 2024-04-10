@@ -224,16 +224,16 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
     headerCounter = PAGE_SIZE;
-    //if(strat != BUDDY){
+    if(strat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         total_memory_allocated += PAGE_SIZE;
         freeHead = newHeader(PAGE_SIZE, usableMemory, NULL, NULL);
-    // }
-    // else{
-        // void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        // total_memory_allocated += BUDDY_PAGE_SIZE;
-        // freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory, NULL, NULL);
-    //}
+    }
+    else{
+        void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        total_memory_allocated += BUDDY_PAGE_SIZE;
+        freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory, NULL, NULL);
+    }
     curFree = freeHead;
     curUsed = NULL;
     usedHead = NULL;
@@ -255,39 +255,63 @@ void* t_malloc(size_t size){
     }
 }
 
+void combineNonBuddy(metadata* left, metadata* right){
+    if(left -> usableMem + left -> size == right -> usableMem){
+        if(right == curPage + headerCounter - HEADER_SIZE){
+            headerCounter -= HEADER_SIZE;
+        }
+        left -> size += right -> size;
+        if(right -> next != NULL){
+            left -> next = right -> next;
+            (right -> next) -> prev = left;
+        }
+        else{
+            left -> next = NULL;
+            curFree = left;
+        }
+        right = NULL;
+    }
+}
+
 void coalesceNonBuddy(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
-    if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
-        if(next == curPage + headerCounter - HEADER_SIZE){
-            headerCounter -= HEADER_SIZE;
-        }
-        block -> size += next -> size;
-        if(next -> next != NULL){
-            block -> next = next -> next;
-            (next -> next) -> prev = block;
-        }
-        else{
-            block -> next = NULL;
-            curFree = block;
-        }
-        next = NULL;
+    if(next != NULL){
+        combineNonBuddy(block, next);
     }
-    if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
-        if(block == curPage + headerCounter - HEADER_SIZE){
-            headerCounter -= HEADER_SIZE;
-        }
-        previous -> size += block -> size;
-        if(block -> next != NULL){
-            previous -> next = block -> next;
-            (block -> next) -> prev = previous;
-        }
-        else{
-            previous -> next = NULL;
-            curFree = previous;
-        }
-        block = NULL;
+    if(previous != NULL){
+        combineNonBuddy(previous, block);
     }
+    // if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
+    //     if(next == curPage + headerCounter - HEADER_SIZE){
+    //         headerCounter -= HEADER_SIZE;
+    //     }
+    //     block -> size += next -> size;
+    //     if(next -> next != NULL){
+    //         block -> next = next -> next;
+    //         (next -> next) -> prev = block;
+    //     }
+    //     else{
+    //         block -> next = NULL;
+    //         curFree = block;
+    //     }
+    //     next = NULL;
+    // }
+    // if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
+    //     if(block == curPage + headerCounter - HEADER_SIZE){
+    //         headerCounter -= HEADER_SIZE;
+    //     }
+    //     previous -> size += block -> size;
+    //     if(block -> next != NULL){
+    //         previous -> next = block -> next;
+    //         (block -> next) -> prev = previous;
+    //     }
+    //     else{
+    //         previous -> next = NULL;
+    //         curFree = previous;
+    //     }
+    //     block = NULL;
+    // }
 }
 
 void t_free(void* ptr){
@@ -297,7 +321,12 @@ void t_free(void* ptr){
             memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertHeader(&freeHead, &curFree, temp);
-            coalesceNonBuddy(temp);
+            //if(strat != BUDDY){
+                coalesceNonBuddy(temp);
+            // }
+            // else{
+            //     coalesceBuddy(temp);
+            // }
             break;
         }
         temp = temp -> next;

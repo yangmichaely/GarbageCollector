@@ -52,7 +52,11 @@ void t_init(alloc_strat_e, void*);
 
 void* t_malloc(size_t);
 
+void combineNonBuddy(metadata*, metadata*);
+
 void coalesceNonBuddy(metadata*);
+
+void coalesceBuddy(metadata*);
 
 void t_free(void*);
 
