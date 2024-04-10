@@ -75,7 +75,7 @@ metadata* buddySplit(metadata* block){
 
 metadata* searchBuddyFit(size_t size){
     metadata* bestFit = searchBestFit(size);
-    while(bestFit != NULL && bestFit -> size / 2 >= size && bestFit -> size >= MIN_BUDDY_SIZE){
+    while(bestFit != NULL && bestFit -> size / 2 >= size && bestFit -> size / 2 >= MIN_BUDDY_SIZE){
         bestFit = buddySplit(bestFit);
     }
     return bestFit;
