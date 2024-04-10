@@ -4,10 +4,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <limits.h>
-#include <regex.h>
 #include <float.h>
 #include <sys/mman.h>
-#include <errno.h>
 #include "tdmm.h" 
 
 alloc_strat_e strat;
@@ -76,11 +74,11 @@ metadata* buddySplit(metadata* block){
 }
 
 metadata* searchBuddyFit(size_t size){
-    metadata* firstFit = searchFirstFit(size);
-    while(firstFit != NULL && firstFit -> size / 2 >= size){
-        firstFit = buddySplit(firstFit);
+    metadata* bestFit = searchBestFit(size);
+    while(firstFit != NULL && bestFit -> size / 2 >= size && bestFit -> size >= MIN_BUDDY_SIZE){
+        bestFit = buddySplit(bestFit);
     }
-    return firstFit;
+    return bestFit;
 }
 
 metadata* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev){
