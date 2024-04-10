@@ -13,7 +13,8 @@ int main() {
     int a;
     printf("a: %d\n", a);
     t_init(FIRST_FIT, &a);
-    //Allocate and immediately free a large number of blocks
+    // clock_t start = clock();
+    // // Allocate and immediately free a large number of blocks
     // for (int i = 0; i < NUM_ITERATIONS; i++) {
     //     size_t size = (rand() % MAX_SIZE) + 1;
     //     void* block = t_malloc(size);
@@ -21,7 +22,9 @@ int main() {
     //     t_free(block);
     //     printf("free: %f\n", get_memory_usage_percentage());
     // }
-
+    // clock_t end = clock();
+    // double time_taken = ((double)end - (double)start) / CLOCKS_PER_SEC;
+    // printf("t_free took %f seconds to execute \n", time_taken);
     // // Allocate a large number of blocks, store the pointers, then free them
     // void** blocks = malloc(NUM_ITERATIONS * sizeof(void*));
     // for (int i = 0; i < NUM_ITERATIONS; i++) {
@@ -46,24 +49,24 @@ int main() {
     // printf("%f\n", get_memory_usage_percentage());
     // t_free(ptr3);
     // printf("%f\n", get_memory_usage_percentage());
-    int cnt = 1;
-    clock_t start = clock();
-    for(int i = 0; i < 100; i++){
-        for(int j = 0; j < 100; j++){
-            t_malloc(1000);
-        }
-        //printf("%d--------------------------------------------------------\n", cnt++);
-        t_gcollect();
-        //printf("free: %f\n", get_memory_usage_percentage());
-    }
-    clock_t end = clock();
-    clock_t time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-    printf("t_malloc took %f seconds to execute \n", time_taken);
+    // int cnt = 1;
+    // clock_t start = clock();
+    // for(int i = 0; i < 1000; i++){
+    //     for(int j = 0; j < 100; j++){
+    //         t_malloc(1000);
+    //     }
+    //     //printf("%d--------------------------------------------------------\n", cnt++);
+    //     t_gcollect();
+    //     printf("used: %f\n", get_memory_usage_percentage());
+    // }
+    // clock_t end = clock();
+    // clock_t time_taken = ((double)end - start) / CLOCKS_PER_SEC;
+    // printf("t_malloc took %f seconds to execute \n", time_taken);
 
-    // void* ptr1 = t_malloc(128);
-    // ptr1 = t_malloc(128);
-    // t_free(ptr1);
-    // t_gcollect();
+    void* ptr1 = t_malloc(128);
+    ptr1 = t_malloc(128);
+    t_free(ptr1);
+    t_gcollect();
 
     // clock_t start = clock();
     // void* block = t_malloc(100);

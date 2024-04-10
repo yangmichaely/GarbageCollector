@@ -45,7 +45,7 @@ void* bestFit(size_t);
 
 void* worstFit(size_t);
 
-void* buddy(size_t);
+void* buddyFit(size_t);
 
 void t_init(alloc_strat_e, void*);
 

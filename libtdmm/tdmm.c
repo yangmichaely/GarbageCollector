@@ -15,7 +15,6 @@ metadata* freeHead;
 metadata* usedHead;
 metadata* curFree;
 metadata* curUsed;
-metadata* prevMark;
 uint64_t headerCounter;
 void* stackBottom;
 void* curPage;
@@ -76,11 +75,11 @@ metadata* buddySplit(metadata* block){
 }
 
 metadata* searchBuddyFit(size_t size){
-    metadata* bestFit = searchBestFit(size);
-    while(bestFit != NULL && bestFit -> size / 2 >= size){
-        bestFit = buddySplit(bestFit);
+    metadata* firstFit = searchFirstFit(size);
+    while(firstFit != NULL && firstFit -> size / 2 >= size){
+        firstFit = buddySplit(firstFit);
     }
-    return bestFit;
+    return firstFit;
 }
 
 metadata* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev){
@@ -213,7 +212,7 @@ void* worstFit(size_t size){
     return createUsedBlock(worstFit, size);
 }
 
-void* buddy(size_t size){
+void* buddyFit(size_t size){
     metadata* buddyFit = searchBuddyFit(size);
     if(buddyFit != NULL){
         size = buddyFit -> size;
@@ -251,7 +250,7 @@ void* t_malloc(size_t size){
         case WORST_FIT:
             return worstFit(size);
         case BUDDY:
-            return buddy(size);
+            return buddyFit(size);
     }
 }
 
@@ -317,7 +316,6 @@ void mark(void* p){
             //printf("tempsize: %lu, p: %lu\n", temp -> usableMem, p);
             if(temp -> size % 4 == 0){
                 //printf("1here:\n");
-                prevMark = temp;
                 temp -> size++;
             }
             break;
@@ -345,12 +343,10 @@ void sweep(){
 
 void t_gcollect(){
     void* stackTop;
-    prevMark = NULL;
     for(uint64_t* i = (uint64_t*) &stackTop; i < (uint64_t*) stackBottom; i++){
         //printf("i: %p\n", i);
         mark(i);
     }
-    prevMark = NULL;
     metadata* temp = usedHead;
     while(temp != NULL){
         uint64_t* start_address = (uint64_t*) temp -> usableMem;
@@ -367,12 +363,12 @@ void t_gcollect(){
         temp = temp -> next;
     }
     sweep();
-    // if(usedHead == NULL){
-    //     printf("usedHead is NULL\n");
-    // }
-    // else{
-    //     printf("usedHead is not NULL\n");
-    // }
+    if(usedHead == NULL){
+        printf("usedHead is NULL\n");
+    }
+    else{
+        printf("usedHead is not NULL\n");
+    }
 }
 
 double get_memory_usage_percentage(){
