@@ -18,6 +18,7 @@ metadata* curUsed;
 uint64_t headerCounter;
 void* stackBottom;
 void* curPage;
+void* memStart;
 size_t total_memory_allocated = 0;
 size_t memory_in_use = 0;
 
@@ -231,6 +232,7 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
     }
     else{
         void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        memStart = usableMemory;
         total_memory_allocated += BUDDY_PAGE_SIZE;
         freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory, NULL, NULL);
     }
@@ -255,8 +257,8 @@ void* t_malloc(size_t size){
     }
 }
 
-void combineNonBuddy(metadata* left, metadata* right){
-    if(left -> usableMem + left -> size == right -> usableMem){
+void combine(metadata* left, metadata* right){
+    if(left != NULL && right != NULL && left -> usableMem + left -> size == right -> usableMem){
         if(right == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
@@ -273,45 +275,21 @@ void combineNonBuddy(metadata* left, metadata* right){
     }
 }
 
-void coalesceNonBuddy(metadata* block){
+void coalesce(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
-    if(next != NULL){
-        combineNonBuddy(block, next);
+    if(strat != BUDDY){
+        combine(block, next);
+        combine(previous, block);
     }
-    if(previous != NULL){
-        combineNonBuddy(previous, block);
+    else{
+        if(((block -> usableMem - memStart) / block -> size) % 2 == 0){
+            combine(block, next);
+        }
+        else{
+            combine(previous, block);
+        }
     }
-    // if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
-    //     if(next == curPage + headerCounter - HEADER_SIZE){
-    //         headerCounter -= HEADER_SIZE;
-    //     }
-    //     block -> size += next -> size;
-    //     if(next -> next != NULL){
-    //         block -> next = next -> next;
-    //         (next -> next) -> prev = block;
-    //     }
-    //     else{
-    //         block -> next = NULL;
-    //         curFree = block;
-    //     }
-    //     next = NULL;
-    // }
-    // if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
-    //     if(block == curPage + headerCounter - HEADER_SIZE){
-    //         headerCounter -= HEADER_SIZE;
-    //     }
-    //     previous -> size += block -> size;
-    //     if(block -> next != NULL){
-    //         previous -> next = block -> next;
-    //         (block -> next) -> prev = previous;
-    //     }
-    //     else{
-    //         previous -> next = NULL;
-    //         curFree = previous;
-    //     }
-    //     block = NULL;
-    // }
 }
 
 void t_free(void* ptr){
@@ -321,12 +299,7 @@ void t_free(void* ptr){
             memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertHeader(&freeHead, &curFree, temp);
-            //if(strat != BUDDY){
-                coalesceNonBuddy(temp);
-            // }
-            // else{
-            //     coalesceBuddy(temp);
-            // }
+            coalesce(temp);
             break;
         }
         temp = temp -> next;
@@ -360,7 +333,7 @@ void sweep(){
             memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertHeader(&freeHead, &curFree, temp);
-            coalesceNonBuddy(temp);
+            coalesce(temp);
         }
         else{
             temp -> size--;
