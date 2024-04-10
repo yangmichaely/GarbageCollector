@@ -284,12 +284,12 @@ void coalesce(metadata* block){
     }
     else{
         if(((block -> usableMem - memStart) / block -> size) % 2 == 0){
-            if(block -> size == next -> size){
+            if(next != NULL && block -> size == next -> size){
                 combine(block, next);
             }
         }
         else{
-            if(block -> size == previous -> size){
+            if(previous != NULL && block -> size == previous -> size){
                 combine(previous, block);
             }
         }
@@ -362,12 +362,12 @@ void t_gcollect(){
         temp = temp -> next;
     }
     sweep();
-    if(usedHead == NULL){
-        printf("usedHead is NULL\n");
-    }
-    else{
-        printf("usedHead is not NULL\n");
-    }
+    // if(usedHead == NULL){
+    //     printf("usedHead is NULL\n");
+    // }
+    // else{
+    //     printf("usedHead is not NULL\n");
+    // }
 }
 
 double get_memory_usage_percentage(){
