@@ -307,12 +307,16 @@ void t_free(void* ptr){
 }
 
 void mark(void* p){
+    if(p == NULL){
+        return;
+    }
     metadata* temp = usedHead;
     while(temp != NULL){
         //printf("p: %p, temp usablemem: %p\n", p, temp -> usableMem);
         if(temp -> usableMem <= p && temp -> usableMem + temp -> size > p){
-            //printf("tempsize: %d\n", temp -> size);
+            //printf("tempsize: %lu, p: %lu\n", temp -> usableMem, p);
             if(temp -> size % 4 == 0){
+                //printf("1here:\n");
                 prevMark = temp;
                 temp -> size++;
             }
@@ -326,6 +330,8 @@ void sweep(){
     metadata* temp = usedHead;
     while(temp != NULL){
         if(temp -> size % 4 == 0){
+            //printf("2here:\n");
+            memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertHeader(&freeHead, &curFree, temp);
             combine(temp);
@@ -340,19 +346,24 @@ void sweep(){
 void t_gcollect(){
     void* stackTop;
     prevMark = NULL;
-    for(char* i = (char*) &stackTop; i < (char*) stackBottom; i++){
+    for(uint64_t* i = (uint64_t*) &stackTop; i < (uint64_t*) stackBottom; i++){
         //printf("i: %p\n", i);
-        mark(*(void**) &i);
+        mark(i);
     }
     prevMark = NULL;
     metadata* temp = usedHead;
     while(temp != NULL){
-        for(char* j = (char*) (temp -> usableMem); j < (char*) (temp -> usableMem + temp -> size); j++){
-            if(prevMark == NULL || (prevMark != NULL && 
-            !(j >= (char*) prevMark -> usableMem && j < (char*) prevMark -> usableMem + prevMark -> size))){
-                mark(*(void**) &j);
-            }
+        uint64_t* start_address = (uint64_t*) temp -> usableMem;
+        for(uint64_t i = 0; i < temp -> size; i++){
+            mark((void*)(start_address[i]));
+            //printf("i: %lu\n", i);
         }
+        // for(uint64_t* j = (uint64_t*) (temp -> usableMem); j < (uint64_t*) (temp -> usableMem + temp -> size); j++){
+        //     if(prevMark == NULL || (prevMark != NULL && 
+        //     !(j >= (char*) prevMark -> usableMem && j < (char*) prevMark -> usableMem + prevMark -> size))){
+        //         mark(j);
+        //     }
+        // }
         temp = temp -> next;
     }
     sweep();

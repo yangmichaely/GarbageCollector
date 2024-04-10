@@ -12,11 +12,7 @@ int main() {
     // Initialize the allocator
     int a;
     printf("a: %d\n", a);
-    clock_t inita = clock();
     t_init(FIRST_FIT, &a);
-    clock_t endb = clock();
-    clock_t timetaken = ((double)endb - inita) / CLOCKS_PER_SEC;
-    printf("t_init took %f seconds to execute \n", timetaken);
     //Allocate and immediately free a large number of blocks
     // for (int i = 0; i < NUM_ITERATIONS; i++) {
     //     size_t size = (rand() % MAX_SIZE) + 1;
@@ -50,12 +46,15 @@ int main() {
     // printf("%f\n", get_memory_usage_percentage());
     // t_free(ptr3);
     // printf("%f\n", get_memory_usage_percentage());
+    int cnt = 1;
     clock_t start = clock();
-    for(int i = 0; i < 1000; i++){
+    for(int i = 0; i < 100; i++){
         for(int j = 0; j < 100; j++){
             t_malloc(1000);
         }
+        //printf("%d--------------------------------------------------------\n", cnt++);
         t_gcollect();
+        //printf("free: %f\n", get_memory_usage_percentage());
     }
     clock_t end = clock();
     clock_t time_taken = ((double)end - start) / CLOCKS_PER_SEC;
