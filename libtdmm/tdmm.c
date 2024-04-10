@@ -230,9 +230,9 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
         freeHead = newHeader(PAGE_SIZE, usableMemory, NULL, NULL);
     // }
     // else{
-        void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        total_memory_allocated += BUDDY_PAGE_SIZE;
-        freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory, NULL, NULL);
+        // void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        // total_memory_allocated += BUDDY_PAGE_SIZE;
+        // freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory, NULL, NULL);
     //}
     curFree = freeHead;
     curUsed = NULL;
