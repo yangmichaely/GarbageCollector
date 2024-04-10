@@ -223,19 +223,20 @@ void* buddyFit(size_t size){
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
-    void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    total_memory_allocated += PAGE_SIZE;
-    curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    total_memory_allocated += PAGE_SIZE;
-    freeHead = curPage;
-    freeHead -> size = PAGE_SIZE;
-    freeHead -> usableMem = usableMemory;
-    freeHead -> next = NULL;
-    freeHead -> prev = NULL;
+    headerCounter = PAGE_SIZE;
+    //if(strat != BUDDY){
+        void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        total_memory_allocated += PAGE_SIZE;
+        freeHead = newHeader(PAGE_SIZE, usableMemory, NULL, NULL);
+    // }
+    // else{
+        void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        total_memory_allocated += BUDDY_PAGE_SIZE;
+        freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory, NULL, NULL);
+    //}
     curFree = freeHead;
     curUsed = NULL;
     usedHead = NULL;
-    headerCounter = HEADER_SIZE;
 }
 
 void* t_malloc(size_t size){
@@ -254,11 +255,10 @@ void* t_malloc(size_t size){
     }
 }
 
-void combine(metadata* block){
+void coalesceNonBuddy(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
-    if(next != NULL && (strat != BUDDY || (strat == BUDDY && next -> size == block -> size))
-    && block -> usableMem + block -> size == next -> usableMem){
+    if(next != NULL && block -> usableMem + block -> size == next -> usableMem){
         if(next == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
@@ -273,8 +273,7 @@ void combine(metadata* block){
         }
         next = NULL;
     }
-    if(previous != NULL && (strat != BUDDY || (strat == BUDDY && previous -> size == block -> size))
-    && previous -> usableMem + previous -> size == block -> usableMem){
+    if(previous != NULL && previous -> usableMem + previous -> size == block -> usableMem){
         if(block == curPage + headerCounter - HEADER_SIZE){
             headerCounter -= HEADER_SIZE;
         }
@@ -298,7 +297,7 @@ void t_free(void* ptr){
             memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertHeader(&freeHead, &curFree, temp);
-            combine(temp);
+            coalesceNonBuddy(temp);
             break;
         }
         temp = temp -> next;
@@ -332,7 +331,7 @@ void sweep(){
             memory_in_use -= temp -> size;
             removeElement(&usedHead, &curUsed, temp);
             insertHeader(&freeHead, &curFree, temp);
-            combine(temp);
+            coalesceNonBuddy(temp);
         }
         else{
             temp -> size--;

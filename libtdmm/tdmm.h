@@ -2,6 +2,7 @@
 #define TDMM_H_
 #define PAGE_SIZE 4096
 #define HEADER_SIZE 32
+#define BUDDY_PAGE_SIZE 4096 * 4096
 
 #include <stddef.h>
 
@@ -51,7 +52,7 @@ void t_init(alloc_strat_e, void*);
 
 void* t_malloc(size_t);
 
-void combine(metadata*);
+void coalesceNonBuddy(metadata*);
 
 void t_free(void*);
 
