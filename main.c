@@ -11,6 +11,7 @@ int main() {
 
     // Initialize the allocator
     int a;
+    printf("a: %d\n", a);
     t_init(FIRST_FIT, &a);
 
     //Allocate and immediately free a large number of blocks
@@ -46,17 +47,21 @@ int main() {
     // printf("%f\n", get_memory_usage_percentage());
     // t_free(ptr3);
     // printf("%f\n", get_memory_usage_percentage());
-    // for(int i = 0; i < 1000; i++){
-    //     for(int j = 0; j < 100; j++){
-    //         t_malloc(1000);
-    //     }
-    //     t_gcollect();
-    // }
+    clock_t start = clock();
+    for(int i = 0; i < 100; i++){
+        for(int j = 0; j < 100; j++){
+            t_malloc(1000);
+        }
+        t_gcollect();
+    }
+    clock_t end = clock();
+    clock_t time_taken = ((double)end - start) / CLOCKS_PER_SEC;
+    printf("t_malloc took %f seconds to execute \n", time_taken);
 
-    void* ptr1 = t_malloc(128);
-    ptr1 = t_malloc(128);
-    t_free(ptr1);
-    t_gcollect();
+    // void* ptr1 = t_malloc(128);
+    // ptr1 = t_malloc(128);
+    // t_free(ptr1);
+    // t_gcollect();
 
     // clock_t start = clock();
     // void* block = t_malloc(100);
