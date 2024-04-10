@@ -270,6 +270,9 @@ void combine(metadata* left, metadata* right){
             curFree = left;
         }
         right = NULL;
+        if(strat == BUDDY){
+            coalesce(left);
+        }
     }
 }
 
