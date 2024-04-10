@@ -348,7 +348,8 @@ void t_gcollect(){
     metadata* temp = usedHead;
     while(temp != NULL){
         for(char* j = (char*) (temp -> usableMem); j < (char*) (temp -> usableMem + temp -> size); j++){
-            if(!(j >= prevMark -> usableMem && j < prevMark -> usableMem + prevMark -> size)){
+            if(prevMark == NULL || (prevMark != NULL && 
+            !(j >= (char*) prevMark -> usableMem && j < (char*) prevMark -> usableMem + prevMark -> size))){
                 mark(*(void**) &j);
             }
         }
