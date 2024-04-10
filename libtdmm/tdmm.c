@@ -284,10 +284,14 @@ void coalesce(metadata* block){
     }
     else{
         if(((block -> usableMem - memStart) / block -> size) % 2 == 0){
-            combine(block, next);
+            if(block -> size == next -> size){
+                combine(block, next);
+            }
         }
         else{
-            combine(previous, block);
+            if(block -> size == previous -> size){
+                combine(previous, block);
+            }
         }
     }
 }
@@ -355,12 +359,6 @@ void t_gcollect(){
             mark((void*)(start_address[i]));
             //printf("i: %lu\n", i);
         }
-        // for(uint64_t* j = (uint64_t*) (temp -> usableMem); j < (uint64_t*) (temp -> usableMem + temp -> size); j++){
-        //     if(prevMark == NULL || (prevMark != NULL && 
-        //     !(j >= (char*) prevMark -> usableMem && j < (char*) prevMark -> usableMem + prevMark -> size))){
-        //         mark(j);
-        //     }
-        // }
         temp = temp -> next;
     }
     sweep();
