@@ -1,7 +1,7 @@
 #ifndef TDMM_H_
 #define TDMM_H_
 #define PAGE_SIZE 4096
-#define HEADER_SIZE 24
+#define HEADER_SIZE 32
 #define BUDDY_PAGE_SIZE 4096 * 4096
 #define MIN_BUDDY_SIZE 8
 
@@ -18,6 +18,7 @@ typedef struct metadata metadata;
 
 struct metadata{
     size_t size;
+    void* usableMem;
     struct metadata* next;
     struct metadata* prev;
 };
@@ -32,7 +33,7 @@ metadata* buddySplit(metadata*);
 
 metadata* searchBuddyFit(size_t);
 
-metadata* newHeader(size_t, metadata*, metadata*);
+metadata* newHeader(size_t, void*, metadata*, metadata*);
 
 void insertHeader(metadata**, metadata**, metadata*);
 
