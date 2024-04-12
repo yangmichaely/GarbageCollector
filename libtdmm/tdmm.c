@@ -360,15 +360,14 @@ void t_gcollect(){
         //printf("i: %p\n", i);
         mark(i);
     }
-    // metadata* temp = usedHead;
-    // while(temp != NULL){
-    //     for(uint64_t i = (uint64_t) temp -> usableMem; i < (uint64_t) temp -> usableMem + temp -> size; i++){
-    //         void* p = (void*) i;
-    //         //printf("i: %p\n", p);
-    //         mark(p);
-    //     }
-    //     temp = temp -> next;
-    // }
+    metadata* temp = usedHead;
+    while(temp != NULL){
+        for(void** i = &(temp -> usableMem); i < &(temp -> usableMem) + temp -> size; i++){
+            //printf("i: %p\n", p);
+            mark(i);
+        }
+        temp = temp -> next;
+    }
     sweep();
     // if(usedHead == NULL){
     //     printf("usedHead is NULL\n");
