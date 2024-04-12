@@ -10,9 +10,9 @@ int main() {
     srand(time(NULL));
 
     // Initialize the allocator
-    int a;
-    printf("a: %d\n", a);
-    t_init(FIRST_FIT, &a);
+    int stack_bottom;
+    printf("a: %d\n", stack_bottom);
+    t_init(FIRST_FIT, &stack_bottom);
     clock_t start;
     clock_t end;
     double time_taken;
@@ -35,35 +35,35 @@ int main() {
     // // Allocate a large number of blocks, store the pointers, then free them
 
     //SPEEDS
-    void** blocks[100];
-    size = 1;
-    fprintf(fp, "%s    %s    %s\n", "size(b)", "t_malloc avg (ns)", "t_free avg (ns)");
-    while(size <= MAX_SIZE){
-        fprintf(fp, "%ld    ", size);
-        start = clock();
-        for(int i = 0; i < 100; i++){
-            blocks[i] = t_malloc(size);
-            //printf("malloc: %f\n", get_memory_usage_percentage());
-        }
-        end = clock();
-        //time is in ns
-        time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
-        average_time_taken = time_taken / 100;
-        //printf("t_malloc total time: %f, t_malloc average time: %f\n", time_taken, average_time_taken);
-        fprintf(fp, "%f    ", average_time_taken);
+    // void** blocks[100];
+    // size = 1;
+    // fprintf(fp, "%s    %s    %s\n", "size(b)", "t_malloc avg (ns)", "t_free avg (ns)");
+    // while(size <= MAX_SIZE){
+    //     fprintf(fp, "%ld    ", size);
+    //     start = clock();
+    //     for(int i = 0; i < 100; i++){
+    //         blocks[i] = t_malloc(size);
+    //         //printf("malloc: %f\n", get_memory_usage_percentage());
+    //     }
+    //     end = clock();
+    //     //time is in ns
+    //     time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
+    //     average_time_taken = time_taken / 100;
+    //     //printf("t_malloc total time: %f, t_malloc average time: %f\n", time_taken, average_time_taken);
+    //     fprintf(fp, "%f    ", average_time_taken);
 
-        start = clock();
-        for (int i = 0; i < 100; i++) {
-            t_free(blocks[i]);
-            //printf("free: %f\n", get_memory_usage_percentage());
-        }
-        end = clock();
-        time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
-        average_time_taken = time_taken / 100;
-        //printf("t_free total time: %f, t_free average time: %f\n", time_taken, average_time_taken);
-        fprintf(fp, "%f    \n", average_time_taken);
-        size *= 2;
-    }
+    //     start = clock();
+    //     for (int i = 0; i < 100; i++) {
+    //         t_free(blocks[i]);
+    //         //printf("free: %f\n", get_memory_usage_percentage());
+    //     }
+    //     end = clock();
+    //     time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
+    //     average_time_taken = time_taken / 100;
+    //     //printf("t_free total time: %f, t_free average time: %f\n", time_taken, average_time_taken);
+    //     fprintf(fp, "%f    \n", average_time_taken);
+    //     size *= 2;
+    // }
     //OVERHEAD
     // size = 1;
     // size_t sizeCounter = 0;
@@ -88,6 +88,17 @@ int main() {
     // }
 
     fclose(fp);
+
+    void* ptr = t_malloc(100);
+    void* ptr2 = t_malloc(200);
+    ptr = t_malloc(200);
+    ptr = t_malloc(300);
+    ptr = t_malloc(400);
+    ptr = t_malloc(500);
+    ptr = t_malloc(600);
+    ptr = t_malloc(700);
+    t_gcollect();
+    printf("overhead: %lu\n", get_overhead());
     // void* ptr1 = t_malloc(128);
     // printf("%f\n", get_memory_usage_percentage());
     // void* ptr2 = t_malloc(128);
