@@ -91,7 +91,7 @@ int main() {
 
     void* ptr = t_malloc(100);
     void* ptr2 = t_malloc(200);
-    ptr = t_malloc(200);
+    ptr = t_malloc(150);
     ptr = t_malloc(300);
     ptr = t_malloc(400);
     ptr = t_malloc(500);
