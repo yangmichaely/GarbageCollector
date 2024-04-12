@@ -93,11 +93,11 @@ metadata* newHeader(size_t size, metadata* next, metadata* prev){
             curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
             total_memory_allocated += PAGE_SIZE;
             newHeader = curPage;
-            headerCounter = HEADER_SIZE + size;
+            headerCounter = size;
         }
         else{
             newHeader = curPage + headerCounter;
-            headerCounter += (HEADER_SIZE + size);
+            headerCounter += size;
         }
     }
     newHeader -> size = size;
@@ -185,7 +185,6 @@ void* createUsedBlock(metadata* block, size_t size){
         return block + HEADER_SIZE;
     }
     else{
-        void* newMem;
         metadata* newUsed;
         if(size < PAGE_SIZE){
             //newMem = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -269,8 +268,8 @@ void* t_malloc(size_t size){
 
 void combine(metadata* left, metadata* right){
     if(left != NULL && right != NULL && left + HEADER_SIZE + left -> size == right + HEADER_SIZE){
-        if(right == curPage + headerCounter - HEADER_SIZE){
-            headerCounter -= HEADER_SIZE;
+        if(right == curPage + headerCounter - HEADER_SIZE - right -> size){
+            headerCounter -= right -> size;
         }
         left -> size += right -> size;
         if(right -> next != NULL){
