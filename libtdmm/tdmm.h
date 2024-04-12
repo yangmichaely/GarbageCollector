@@ -67,4 +67,6 @@ void t_gcollect();
 
 double get_memory_usage_percentage();
 
+size_t get_overhead();
+
 #endif

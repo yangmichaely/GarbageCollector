@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_SIZE 4096
+#define MAX_SIZE 1024 * 1024 * 8
 #define NUM_ITERATIONS 25000
 
 int main() {
@@ -12,7 +12,14 @@ int main() {
     // Initialize the allocator
     int a;
     printf("a: %d\n", a);
-    t_init(BUDDY, &a);
+    t_init(FIRST_FIT, &a);
+    clock_t start;
+    clock_t end;
+    double time_taken;
+    double average_time_taken = 0;
+    size_t size;
+    FILE *fp;
+    fp = fopen("/u/yangm/cs429/GarbageCollector/Report_Data/FIRST_FIT.csv", "a");
     // clock_t start = clock();
     // // Allocate and immediately free a large number of blocks
     // for (int i = 0; i < NUM_ITERATIONS; i++) {
@@ -26,17 +33,61 @@ int main() {
     // double time_taken = ((double)end - (double)start) / CLOCKS_PER_SEC;
     // printf("t_free took %f seconds to execute \n", time_taken);
     // // Allocate a large number of blocks, store the pointers, then free them
-    void** blocks = malloc(NUM_ITERATIONS * sizeof(void*));
-    for (int i = 0; i < NUM_ITERATIONS; i++) {
-        size_t size = (rand() % MAX_SIZE) + 1;
-        blocks[i] = t_malloc(size);
-        printf("malloc: %f\n", get_memory_usage_percentage());
+
+    //SPEEDS
+    void** blocks[100];
+    size = 1;
+    fprintf(fp, "%s    %s    %s\n", "size(b)", "t_malloc avg (ns)", "t_free avg (ns)");
+    while(size <= MAX_SIZE){
+        fprintf(fp, "%ld    ", size);
+        start = clock();
+        for(int i = 0; i < 100; i++){
+            blocks[i] = t_malloc(size);
+            //printf("malloc: %f\n", get_memory_usage_percentage());
+        }
+        end = clock();
+        //time is in ns
+        time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
+        average_time_taken = time_taken / 100;
+        //printf("t_malloc total time: %f, t_malloc average time: %f\n", time_taken, average_time_taken);
+        fprintf(fp, "%f    ", average_time_taken);
+
+        start = clock();
+        for (int i = 0; i < 100; i++) {
+            t_free(blocks[i]);
+            //printf("free: %f\n", get_memory_usage_percentage());
+        }
+        end = clock();
+        time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
+        average_time_taken = time_taken / 100;
+        //printf("t_free total time: %f, t_free average time: %f\n", time_taken, average_time_taken);
+        fprintf(fp, "%f    \n", average_time_taken);
+        size *= 2;
     }
-    for (int i = 0; i < NUM_ITERATIONS; i++) {
-        t_free(blocks[i]);
-        printf("free: %f\n", get_memory_usage_percentage());
-    }
-    free(blocks);
+    //OVERHEAD
+    // size = 1;
+    // size_t sizeCounter = 0;
+    // fprintf(fp, "\n%s    %s\n", "accumulated size(b)", "overhead size(b)");
+    // while(size <= MAX_SIZE){
+    //     fprintf(fp, "\n%s-----------------------\n\n", "MALLOC");
+    //     for(int i = 0; i < 100; i++){
+    //         sizeCounter += size;
+    //         blocks[i] = t_malloc(size);
+    //         fprintf(fp, "%lld    %lu\n", sizeCounter, get_overhead());
+    //     }
+
+    //     fprintf(fp, "\n%s-----------------------\n\n", "FREE");
+
+    //     for (int i = 0; i < 100; i++) {
+    //         sizeCounter -= size;
+    //         t_free(blocks[i]);
+    //         fprintf(fp, "%lld    %lu\n", sizeCounter, get_overhead());
+    //     }
+
+    //     size *= 2;
+    // }
+
+    fclose(fp);
     // void* ptr1 = t_malloc(128);
     // printf("%f\n", get_memory_usage_percentage());
     // void* ptr2 = t_malloc(128);

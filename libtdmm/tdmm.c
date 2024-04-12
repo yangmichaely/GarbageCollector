@@ -243,6 +243,9 @@ void* t_malloc(size_t size){
     if(size % 4 != 0){
         size += (4 - size % 4);
     }
+    if(size > PAGE_SIZE){
+        return createUsedBlock(NULL, size);
+    }
     switch(strat){
         case FIRST_FIT:
             return firstFit(size);
