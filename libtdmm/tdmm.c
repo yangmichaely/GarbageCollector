@@ -314,7 +314,7 @@ void t_free(void* ptr){
     }
 }
 
-void mark(void** p){
+void mark(void* p){
     if(p == NULL){
         return;
     }
@@ -322,7 +322,7 @@ void mark(void** p){
     //printf("p: %p\n", *p);
     while(temp != NULL){
         //printf("tempsize: %p, p: %lu\n", temp -> usableMem, p);
-        if(temp -> usableMem <= *p && temp -> usableMem + temp -> size > *p){
+        if((void*) &(temp -> usableMem) <= p && (void*) &(temp -> usableMem) + temp -> size > p){
             if(temp -> size % 4 == 0){
                 //printf("marked\n");
                 temp -> size++;
@@ -357,14 +357,13 @@ void t_gcollect(){
     printf("stackBottom: %p\n", stackBottom);
     printf("stackTop: %p\n", &stackTop);
     for(void** i = &stackTop; i < (void**) stackBottom; i++){
-        //printf("i: %p\n", i);
-        mark(i);
+        mark(*i);
     }
     metadata* temp = usedHead;
     while(temp != NULL){
         for(void** i = &(temp -> usableMem); i < &(temp -> usableMem) + temp -> size; i++){
             //printf("i: %p\n", p);
-            mark(i);
+            mark(*i);
         }
         temp = temp -> next;
     }

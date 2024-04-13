@@ -10,8 +10,8 @@ int main() {
     srand(time(NULL));
 
     // Initialize the allocator
-    int stack_bottom;
-    printf("a: %d\n", stack_bottom);
+    void* stack_bottom;
+    printf("a: %p\n", &stack_bottom);
     t_init(FIRST_FIT, &stack_bottom);
     clock_t start;
     clock_t end;
@@ -90,21 +90,23 @@ int main() {
     fclose(fp);
 
 
-    for (int i = 0; i < NUM_ITERATIONS; i++) {
-        void *ptr = t_malloc(10990909);
-        t_free(ptr); // Assuming t_free is the corresponding free function
-    }
+    // for (int i = 0; i < NUM_ITERATIONS; i++) {
+    //     void *ptr = t_malloc(10990909);
+    //     t_free(ptr); // Assuming t_free is the corresponding free function
+    // }
 
-    // void* ptr = t_malloc(100);
-    // void* ptr2 = t_malloc(200);
-    // ptr = t_malloc(150);
-    // ptr = t_malloc(300);
-    // ptr = t_malloc(400);
-    // ptr = t_malloc(500);
-    // ptr = t_malloc(600);
-    // ptr = t_malloc(700);
-    // t_gcollect();
-    // printf("overhead: %lu\n", get_overhead());
+    void* ptr = t_malloc(100);
+    void* ptr2 = t_malloc(200);
+    ptr = t_malloc(150);
+    ptr = t_malloc(300);
+    ptr = t_malloc(400);
+    ptr = t_malloc(500);
+    ptr = t_malloc(600);
+    ptr = t_malloc(700);
+    printf("ptr: %p\n", &ptr);
+    printf("ptr2: %p\n", &ptr2);
+    t_gcollect();
+    printf("overhead: %lu\n", get_overhead());
     // void* ptr1 = t_malloc(128);
     // printf("%f\n", get_memory_usage_percentage());
     // void* ptr2 = t_malloc(128);
