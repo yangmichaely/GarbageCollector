@@ -101,38 +101,50 @@ metadata* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev
 }
 
 void insertHeader(metadata** head, metadata** cur, metadata* cmp){
-    metadata* temp = *head;
-    int found = 0;
-    while(temp != NULL && temp -> next != NULL){
-        if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
-            cmp -> next = temp -> next;
-            temp -> next = cmp;
-            cmp -> prev = temp;
-            cmp -> next -> prev = cmp;
-            found = 1;
-            break;
-        }
-        temp = temp -> next;
+    // metadata* temp = *head;
+    // int found = 0;
+    // while(temp != NULL && temp -> next != NULL){
+    //     if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
+    //         cmp -> next = temp -> next;
+    //         temp -> next = cmp;
+    //         cmp -> prev = temp;
+    //         cmp -> next -> prev = cmp;
+    //         found = 1;
+    //         break;
+    //     }
+    //     temp = temp -> next;
+    // }
+    // if(found == 0){
+    //     if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
+    //         cmp -> next = *head;
+    //         cmp -> prev = NULL;
+    //         (*head) -> prev = cmp;
+    //         (*head) = cmp;
+    //     }
+    //     else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
+    //         cmp -> next = NULL;
+    //         (*cur) -> next = cmp;
+    //         cmp -> prev = (*cur);
+    //         (*cur) = cmp;
+    //     }
+    //     else{
+    //         cmp -> next = NULL;
+    //         cmp -> prev = NULL;
+    //         (*head) = cmp;
+    //         (*cur) = cmp;
+    //     }
+    // }
+    if(*cur == NULL){
+        cmp -> prev = NULL;
+        cmp -> next = NULL;
+        *head = cmp;
+        *cur = cmp;
     }
-    if(found == 0){
-        if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
-            cmp -> next = *head;
-            cmp -> prev = NULL;
-            (*head) -> prev = cmp;
-            (*head) = cmp;
-        }
-        else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
-            cmp -> next = NULL;
-            (*cur) -> next = cmp;
-            cmp -> prev = (*cur);
-            (*cur) = cmp;
-        }
-        else{
-            cmp -> next = NULL;
-            cmp -> prev = NULL;
-            (*head) = cmp;
-            (*cur) = cmp;
-        }
+    else{
+        (*cur) -> next = cmp;
+        cmp -> prev = *cur;
+        *cur = cmp;
+        cmp -> next = NULL;
     }
 }
 
@@ -322,7 +334,7 @@ void mark(void* p){
     //printf("p: %p\n", *p);
     while(temp != NULL){
         //printf("tempsize: %p, p: %lu\n", temp -> usableMem, p);
-        if((void*) &(temp -> usableMem) <= p && (void*) &(temp -> usableMem) + temp -> size > p){
+        if((char*) &(temp -> usableMem) <= (char*) p && (char*) &(temp -> usableMem) + temp -> size >= (char*) p){
             if(temp -> size % 4 == 0){
                 //printf("marked\n");
                 temp -> size++;
@@ -356,12 +368,12 @@ void t_gcollect(){
     void* stackTop;
     printf("stackBottom: %p\n", stackBottom);
     printf("stackTop: %p\n", &stackTop);
-    for(void** i = &stackTop; i < (void**) stackBottom; i++){
+    for(char** i = (char**) &stackTop; i < (char**) stackBottom; i++){
         mark(*i);
     }
     metadata* temp = usedHead;
     while(temp != NULL){
-        for(void** i = &(temp -> usableMem); i < &(temp -> usableMem) + temp -> size; i++){
+        for(char** i = (char**) &(temp -> usableMem); i < (char**) &(temp -> usableMem) + temp -> size; i++){
             //printf("i: %p\n", p);
             mark(*i);
         }
