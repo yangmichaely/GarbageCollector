@@ -59,7 +59,7 @@ void coalesce(metadata*);
 
 void t_free(void*);
 
-void mark(void*);
+void markHeap(void*, void*);
 
 void sweep();
 

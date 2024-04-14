@@ -117,14 +117,14 @@ void insertHeader(metadata** head, metadata** cur, metadata* cmp){
     if(found == 0){
         if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
             cmp -> next = *head;
-            cmp -> prev = NULL;
             (*head) -> prev = cmp;
+            cmp -> prev = NULL;
             (*head) = cmp;
         }
         else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
-            cmp -> next = NULL;
             (*cur) -> next = cmp;
             cmp -> prev = (*cur);
+            cmp -> next = NULL;
             (*cur) = cmp;
         }
         else{
@@ -326,19 +326,20 @@ void t_free(void* ptr){
     }
 }
 
-void mark(void* p){
-    metadata* temp = usedHead;
-    //printf("p: %p\n", *p);
-    while(temp != NULL){
-        //printf("tempsize: %p, p: %lu\n", temp -> usableMem, p);
-        if(p >= temp -> usableMem && p < temp -> usableMem + temp -> size){
-            if(temp -> size % 4 == 0){
-                printf("marked\n");
-                temp -> size++;
+void markHeap(void* start, void* end){
+    for(void* i = start; i < end; i++){
+        metadata* temp = usedHead;
+        while(temp != NULL){
+            if(i >= temp -> usableMem && i < temp -> usableMem + temp -> size){
+                if(temp -> size % 4 == 0){
+                    //printf("marked\n");
+                    temp -> size++;
+                    markHeap(temp -> usableMem, temp -> usableMem + temp -> size);
+                }
+                break;
             }
-            break;
+            temp = temp -> next;
         }
-        temp = temp -> next;
     }
 }
 
@@ -373,6 +374,7 @@ void t_gcollect(){
                     if(temp -> size % 4 == 0){
                         //printf("marked\n");
                         temp -> size++;
+                        markHeap(temp -> usableMem, temp -> usableMem + temp -> size);
                     }
                     break;
                 }
@@ -380,26 +382,6 @@ void t_gcollect(){
             }
         }
     }
-    // metadata* temp = usedHead;
-    // while(temp != NULL){
-    //     for(void** j = &(temp -> usableMem); j < &(temp -> usableMem) + temp -> size; j++){
-    //         //printf("i: %p\n", p);
-    //         if(*j != NULL){
-    //             metadata* temp1 = usedHead;
-    //             while(temp1 != NULL){
-    //                 if(*j >= temp1 -> usableMem && *j < temp1 -> usableMem + temp1 -> size){
-    //                     if(temp1 -> size % 4 == 0){
-    //                         //printf("marked\n");
-    //                         temp1 -> size++;
-    //                     }
-    //                     break;
-    //                 }
-    //                 temp1 = temp1 -> next;
-    //             }
-    //         }
-    //     }
-    //     temp = temp -> next;
-    // }
     sweep();
     // if(usedHead == NULL){
     //     printf("usedHead is NULL\n");
