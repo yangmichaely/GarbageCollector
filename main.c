@@ -8,7 +8,7 @@
 int main() {
     void* stack_bottom;
     printf("a: %p\n", &stack_bottom);
-    t_init(FIRST_FIT, &stack_bottom);
+    t_init(BEST_FIT, &stack_bottom);
     // clock_t start;
     // clock_t end;
     // double time_taken;

@@ -101,51 +101,51 @@ metadata* newHeader(size_t size, void* usableMem, metadata* next, metadata* prev
 }
 
 void insertHeader(metadata** head, metadata** cur, metadata* cmp){
-    // metadata* temp = *head;
-    // int found = 0;
-    // while(temp != NULL && temp -> next != NULL){
-    //     if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
-    //         cmp -> next = temp -> next;
-    //         temp -> next = cmp;
-    //         cmp -> prev = temp;
-    //         cmp -> next -> prev = cmp;
-    //         found = 1;
-    //         break;
-    //     }
-    //     temp = temp -> next;
-    // }
-    // if(found == 0){
-    //     if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
-    //         cmp -> next = *head;
-    //         cmp -> prev = NULL;
-    //         (*head) -> prev = cmp;
-    //         (*head) = cmp;
-    //     }
-    //     else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
-    //         cmp -> next = NULL;
-    //         (*cur) -> next = cmp;
-    //         cmp -> prev = (*cur);
-    //         (*cur) = cmp;
-    //     }
-    //     else{
-    //         cmp -> next = NULL;
-    //         cmp -> prev = NULL;
-    //         (*head) = cmp;
-    //         (*cur) = cmp;
-    //     }
-    // }
-    if(*cur == NULL){
-        cmp -> prev = NULL;
-        cmp -> next = NULL;
-        *head = cmp;
-        *cur = cmp;
+    metadata* temp = *head;
+    int found = 0;
+    while(temp != NULL && temp -> next != NULL){
+        if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
+            cmp -> next = temp -> next;
+            temp -> next = cmp;
+            cmp -> prev = temp;
+            cmp -> next -> prev = cmp;
+            found = 1;
+            break;
+        }
+        temp = temp -> next;
     }
-    else{
-        (*cur) -> next = cmp;
-        cmp -> prev = *cur;
-        *cur = cmp;
-        cmp -> next = NULL;
+    if(found == 0){
+        if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
+            cmp -> next = *head;
+            cmp -> prev = NULL;
+            (*head) -> prev = cmp;
+            (*head) = cmp;
+        }
+        else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
+            cmp -> next = NULL;
+            (*cur) -> next = cmp;
+            cmp -> prev = (*cur);
+            (*cur) = cmp;
+        }
+        else{
+            cmp -> next = NULL;
+            cmp -> prev = NULL;
+            (*head) = cmp;
+            (*cur) = cmp;
+        }
     }
+    // if(*cur == NULL){
+    //     cmp -> prev = NULL;
+    //     cmp -> next = NULL;
+    //     *head = cmp;
+    //     *cur = cmp;
+    // }
+    // else{
+    //     (*cur) -> next = cmp;
+    //     cmp -> prev = *cur;
+    //     *cur = cmp;
+    //     cmp -> next = NULL;
+    // }
 }
 
 void removeElement(metadata** head, metadata** cur, metadata* block){
@@ -382,10 +382,20 @@ void t_gcollect(){
     }
     // metadata* temp = usedHead;
     // while(temp != NULL){
-    //     for(void** i = &(temp -> usableMem); i < &(temp -> usableMem) + temp -> size; i++){
+    //     for(void** j = &(temp -> usableMem); j < &(temp -> usableMem) + temp -> size; j++){
     //         //printf("i: %p\n", p);
-    //         if(*i != NULL){
-    //             mark(*i);
+    //         if(*j != NULL){
+    //             metadata* temp1 = usedHead;
+    //             while(temp1 != NULL){
+    //                 if(*j >= temp1 -> usableMem && *j < temp1 -> usableMem + temp1 -> size){
+    //                     if(temp1 -> size % 4 == 0){
+    //                         //printf("marked\n");
+    //                         temp1 -> size++;
+    //                     }
+    //                     break;
+    //                 }
+    //                 temp1 = temp1 -> next;
+    //             }
     //         }
     //     }
     //     temp = temp -> next;
