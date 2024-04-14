@@ -8,7 +8,7 @@
 int main() {
     void* stack_bottom;
     printf("a: %p\n", &stack_bottom);
-    t_init(BEST_FIT, &stack_bottom);
+    t_init(FIRST_FIT, &stack_bottom);
     // clock_t start;
     // clock_t end;
     // double time_taken;
@@ -127,6 +127,15 @@ int main() {
     printf("ptr2: %p\n", &ptr2);
     t_gcollect();
     printf("overhead: %lu\n", get_overhead());
+
+    // for (int i = 0; i < 1000; i++){
+    //     for(int j = 0; j < 100; j++){
+    //         t_malloc(1000);
+    //     }
+    //     t_gcollect();
+    //     printf("overhead: %lu\n", get_overhead());
+    // }
+
 
     return 0;
 }
