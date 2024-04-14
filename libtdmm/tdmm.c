@@ -327,16 +327,13 @@ void t_free(void* ptr){
 }
 
 void mark(void* p){
-    if(p == NULL){
-        return;
-    }
     metadata* temp = usedHead;
     //printf("p: %p\n", *p);
     while(temp != NULL){
         //printf("tempsize: %p, p: %lu\n", temp -> usableMem, p);
-        if((char*) &(temp -> usableMem) <= (char*) p && (char*) &(temp -> usableMem) + temp -> size >= (char*) p){
+        if(p >= temp -> usableMem && p < temp -> usableMem + temp -> size){
             if(temp -> size % 4 == 0){
-                //printf("marked\n");
+                printf("marked\n");
                 temp -> size++;
             }
             break;
@@ -368,17 +365,31 @@ void t_gcollect(){
     void* stackTop;
     printf("stackBottom: %p\n", stackBottom);
     printf("stackTop: %p\n", &stackTop);
-    for(char** i = (char**) &stackTop; i < (char**) stackBottom; i++){
-        mark(*i);
-    }
-    metadata* temp = usedHead;
-    while(temp != NULL){
-        for(char** i = (char**) &(temp -> usableMem); i < (char**) &(temp -> usableMem) + temp -> size; i++){
-            //printf("i: %p\n", p);
-            mark(*i);
+    for(void** i = &stackTop; i < (void**) stackBottom; i++){
+        if(*i != NULL){
+            metadata* temp = usedHead;
+            while(temp != NULL){
+                if(*i >= temp -> usableMem && *i < temp -> usableMem + temp -> size){
+                    if(temp -> size % 4 == 0){
+                        //printf("marked\n");
+                        temp -> size++;
+                    }
+                    break;
+                }
+                temp = temp -> next;
+            }
         }
-        temp = temp -> next;
     }
+    // metadata* temp = usedHead;
+    // while(temp != NULL){
+    //     for(void** i = &(temp -> usableMem); i < &(temp -> usableMem) + temp -> size; i++){
+    //         //printf("i: %p\n", p);
+    //         if(*i != NULL){
+    //             mark(*i);
+    //         }
+    //     }
+    //     temp = temp -> next;
+    // }
     sweep();
     // if(usedHead == NULL){
     //     printf("usedHead is NULL\n");
