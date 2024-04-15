@@ -94,7 +94,6 @@ metadata* newHeader(size_t size, void* usableMem){
     metadata* newHeader = NULL;
     if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        printf("here\n");
         total_memory_allocated += PAGE_SIZE;
         newHeader = curPage;
         headerCounter = HEADER_SIZE;
@@ -111,51 +110,51 @@ metadata* newHeader(size_t size, void* usableMem){
 }
 
 void insertHeader(metadata** head, metadata** cur, metadata* cmp){
-    metadata* temp = *head;
-    int found = 0;
-    while(temp != NULL && temp -> next != NULL){
-        if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
-            cmp -> next = temp -> next;
-            temp -> next = cmp;
-            cmp -> prev = temp;
-            cmp -> next -> prev = cmp;
-            found = 1;
-            break;
-        }
-        temp = temp -> next;
-    }
-    if(found == 0){
-        if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
-            cmp -> next = *head;
-            (*head) -> prev = cmp;
-            cmp -> prev = NULL;
-            (*head) = cmp;
-        }
-        else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
-            (*cur) -> next = cmp;
-            cmp -> prev = (*cur);
-            cmp -> next = NULL;
-            (*cur) = cmp;
-        }
-        else{
-            cmp -> next = NULL;
-            cmp -> prev = NULL;
-            (*head) = cmp;
-            (*cur) = cmp;
-        }
-    }
-    // if(*cur == NULL){
-    //     cmp -> prev = NULL;
-    //     cmp -> next = NULL;
-    //     *head = cmp;
-    //     *cur = cmp;
+    // metadata* temp = *head;
+    // int found = 0;
+    // while(temp != NULL && temp -> next != NULL){
+    //     if(temp -> usableMem < cmp -> usableMem && temp -> next -> usableMem > cmp -> usableMem){
+    //         cmp -> next = temp -> next;
+    //         temp -> next = cmp;
+    //         cmp -> prev = temp;
+    //         cmp -> next -> prev = cmp;
+    //         found = 1;
+    //         break;
+    //     }
+    //     temp = temp -> next;
     // }
-    // else{
-    //     (*cur) -> next = cmp;
-    //     cmp -> prev = *cur;
-    //     *cur = cmp;
-    //     cmp -> next = NULL;
+    // if(found == 0){
+    //     if(*head != NULL && (*head) -> usableMem > cmp -> usableMem){
+    //         cmp -> next = *head;
+    //         (*head) -> prev = cmp;
+    //         cmp -> prev = NULL;
+    //         (*head) = cmp;
+    //     }
+    //     else if((*cur) != NULL && (*cur) -> usableMem < cmp -> usableMem){
+    //         (*cur) -> next = cmp;
+    //         cmp -> prev = (*cur);
+    //         cmp -> next = NULL;
+    //         (*cur) = cmp;
+    //     }
+    //     else{
+    //         cmp -> next = NULL;
+    //         cmp -> prev = NULL;
+    //         (*head) = cmp;
+    //         (*cur) = cmp;
+    //     }
     // }
+    if(*cur == NULL){
+        cmp -> prev = NULL;
+        cmp -> next = NULL;
+        *head = cmp;
+        *cur = cmp;
+    }
+    else{
+        (*cur) -> next = cmp;
+        cmp -> prev = *cur;
+        *cur = cmp;
+        cmp -> next = NULL;
+    }
 }
 
 void removeElement(metadata** head, metadata** cur, metadata* block){
@@ -234,6 +233,7 @@ void* worstFit(size_t size){
 }
 
 void* buddyFit(size_t size){
+    memory_in_use += size;
     uint64_t bmapSize = size / MIN_BUDDY_SIZE;
     return searchBuddyFit(bmapSize);
 }
@@ -325,6 +325,7 @@ void t_free(void* ptr){
         while(usedTemp != NULL){
             if(ptr == usedTemp -> usableMem){
                 size = usedTemp -> size;
+                memory_in_use -= size;
                 removeElement(&usedHead, &curUsed, usedTemp);
                 break;
             }
@@ -404,23 +405,32 @@ void t_gcollect(){
 }
 
 double get_memory_usage_percentage(){
-    return total_memory_allocated;
-    //return ((double)memory_in_use / total_memory_allocated) * 100;
+    return ((double)memory_in_use / total_memory_allocated) * 100;
 }
 
 size_t get_overhead(){
-    size_t overhead = 0;
-    metadata* temp = freeHead;
-    while(temp != NULL){
-        printf("found in free: %d\n", temp -> size);
-        overhead += HEADER_SIZE;
-        temp = temp -> next;
+    if(strat != BUDDY){
+        size_t overhead = 0;
+        metadata* temp = freeHead;
+        while(temp != NULL){
+            overhead += HEADER_SIZE;
+            temp = temp -> next;
+        }
+        metadata* temp2 = usedHead;
+        while(temp2 != NULL){
+            overhead += HEADER_SIZE;
+            temp2 = temp2 -> next;
+        }
+        return overhead;
     }
-    metadata* temp2 = usedHead;
-    while(temp2 != NULL){
-        printf("found in used: %d\n", temp2 -> size);
-        overhead += HEADER_SIZE;
-        temp2 = temp2 -> next;
+    else{
+        size_t overhead = 0;
+        metadata* temp2 = usedHead;
+        while(temp2 != NULL){
+            overhead += HEADER_SIZE;
+            temp2 = temp2 -> next;
+        }
+        overhead += BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE;
+        return overhead;
     }
-    return overhead;
 }

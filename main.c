@@ -8,7 +8,7 @@
 int main() {
     void* stack_bottom;
     printf("a: %p\n", &stack_bottom);
-    t_init(FIRST_FIT, &stack_bottom);
+    t_init(BUDDY, &stack_bottom);
     clock_t start;
     clock_t end;
     double time_taken;
@@ -115,18 +115,18 @@ int main() {
     // fclose(fp);
 
     // GCOLLECT
-    void* ptr = t_malloc(100);
-    void* ptr2 = t_malloc(200);
-    ptr = t_malloc(150);
-    ptr = t_malloc(300);
-    ptr = t_malloc(400);
-    ptr = t_malloc(500);
-    ptr = t_malloc(600);
-    ptr = t_malloc(700);
-    printf("ptr: %p\n", &ptr);
-    printf("ptr2: %p\n", &ptr2);
-    t_gcollect();
-    printf("overhead: %lu\n", get_overhead());
+    // void* ptr = t_malloc(100);
+    // void* ptr2 = t_malloc(200);
+    // ptr = t_malloc(150);
+    // ptr = t_malloc(300);
+    // ptr = t_malloc(400);
+    // ptr = t_malloc(500);
+    // ptr = t_malloc(600);
+    // ptr = t_malloc(700);
+    // printf("ptr: %p\n", &ptr);
+    // printf("ptr2: %p\n", &ptr2);
+    // t_gcollect();
+    // printf("overhead: %lu\n", get_overhead());
 
     // for (int i = 0; i < 5; i++){
     //     for(int j = 0; j < 40; j++){

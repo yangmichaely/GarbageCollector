@@ -7,7 +7,7 @@
 
 # =============================================================================
 # Project: project3
-# Configuration: Debug
+# Configuration: 
 # =============================================================================
 # =============================================================================
 
@@ -25,7 +25,7 @@ rule CUSTOM_COMMAND
 rule C_COMPILER__project3
   depfile = $DEP_FILE
   deps = gcc
-  command = /lusr/bin/gcc-11 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /usr/bin/clang $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
@@ -33,7 +33,7 @@ rule C_COMPILER__project3
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__project3
-  command = $PRE_LINK && /lusr/bin/gcc-11 $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /usr/bin/clang $FLAGS  $LINK_FLAGS $in  -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
@@ -44,7 +44,7 @@ rule C_EXECUTABLE_LINKER__project3
 rule C_COMPILER__tdmm
   depfile = $DEP_FILE
   deps = gcc
-  command = /lusr/bin/gcc-11 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  command = /usr/bin/clang $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
   description = Building C object $out
 
 
