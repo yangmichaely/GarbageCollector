@@ -128,8 +128,8 @@ int main() {
     // t_gcollect();
     // printf("overhead: %lu\n", get_overhead());
 
-    for (int i = 0; i < 5; i++){
-        for(int j = 0; j < 100; j++){
+    // for (int i = 0; i < 5; i++){
+        for(int j = 0; j < 4; j++){
             t_malloc(1000);
         }
 
@@ -137,7 +137,7 @@ int main() {
         t_gcollect();
         printf("memUtil: %lf\n", get_memory_usage_percentage());
         printf("overhead: %lu\n", get_overhead());
-    }
+    // }
 
     return 0;
 }
