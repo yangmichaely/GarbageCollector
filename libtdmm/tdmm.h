@@ -2,7 +2,7 @@
 #define TDMM_H_
 #define PAGE_SIZE 4096
 #define HEADER_SIZE 32
-#define BUDDY_PAGE_SIZE 131072
+#define BUDDY_PAGE_SIZE 1048576
 #define MIN_BUDDY_SIZE 16
 
 #include <stddef.h>
