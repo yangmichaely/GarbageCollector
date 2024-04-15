@@ -313,7 +313,7 @@ void t_free(void* ptr){
                 memory_in_use -= temp -> size;
                 removeElement(&usedHead, &curUsed, temp);
                 insertHeader(&freeHead, &curFree, temp);
-                //coalesce(temp);
+                coalesce(temp);
                 break;
             }
             temp = temp -> next;
@@ -363,7 +363,7 @@ void sweep(){
             if(strat != BUDDY){
                 removeElement(&usedHead, &curUsed, temp);
                 insertHeader(&freeHead, &curFree, temp);
-                //coalesce(temp);
+                coalesce(temp);
             }
             else{
                 int index = (temp -> usableMem - buddyMem) / MIN_BUDDY_SIZE;
