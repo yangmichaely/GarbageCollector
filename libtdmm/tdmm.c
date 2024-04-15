@@ -15,7 +15,7 @@ metadata* curFree;
 metadata* curUsed;
 uint64_t headerCounter;
 void* stackBottom;
-void* curPage;
+metadata* curPage;
 size_t total_memory_allocated = 0;
 size_t memory_in_use = 0;
 void* buddyMem;
@@ -91,23 +91,24 @@ void* searchBuddyFit(size_t size){
 }
 
 metadata* newHeader(size_t size, void* usableMem){
-    metadata* newHeader = NULL;
-    if(headerCounter >= PAGE_SIZE){
-        curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    metadata* meta_data;
+    if(headerCounter == 0 || headerCounter >= PAGE_SIZE){
+        curPage = (metadata*)mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         printf("here\n");
         total_memory_allocated += PAGE_SIZE;
-        newHeader = curPage;
-        headerCounter = HEADER_SIZE;
-    }
-    else{
-        newHeader = curPage + headerCounter;
+        //newHeader = curPage;
+        printf("index %lu\n", headerCounter/HEADER_SIZE);
+        curPage[headerCounter/HEADER_SIZE] = (metadata){size, usableMem, NULL, NULL};
+        meta_data = &(curPage[headerCounter/HEADER_SIZE]);
         headerCounter += HEADER_SIZE;
     }
-    newHeader -> size = size;
-    newHeader -> usableMem = usableMem;
-    newHeader -> next = NULL;
-    newHeader -> prev = NULL;
-    return newHeader;
+    else{
+        curPage[headerCounter/HEADER_SIZE] = (metadata){size, usableMem, NULL, NULL};
+        meta_data = &(curPage[headerCounter/HEADER_SIZE]);
+        //newHeader = curPage + headerCounter;
+        headerCounter += HEADER_SIZE;
+    }
+    return meta_data;
 }
 
 void insertHeader(metadata** head, metadata** cur, metadata* cmp){
@@ -241,7 +242,8 @@ void* buddyFit(size_t size){
 void t_init(alloc_strat_e allocStrat, void* stBot){
     strat = allocStrat;
     stackBottom = stBot;
-    headerCounter = PAGE_SIZE;
+    //headerCounter = PAGE_SIZE;
+    headerCounter = 0;
     if(strat != BUDDY){
         void* usableMemory = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         total_memory_allocated += PAGE_SIZE;
