@@ -9,14 +9,14 @@ int main() {
     void* stack_bottom;
     printf("a: %p\n", &stack_bottom);
     t_init(BUDDY, &stack_bottom);
-    clock_t start;
-    clock_t end;
-    double time_taken;
-    double average_time_taken = 0;
-    size_t size = 1;
-    FILE *fp;
-    fp = fopen("/u/yangm/cs429/GarbageCollector/Report_Data/BUDDY.csv", "a");
-    void** blocks[100];
+    // clock_t start;
+    // clock_t end;
+    // double time_taken;
+    // double average_time_taken = 0;
+    // size_t size = 1;
+    // FILE *fp;
+    // fp = fopen("/u/yangm/cs429/GarbageCollector/Report_Data/BUDDY.csv", "a");
+    // void** blocks[100];
 
     //OVERALL MEM_UTILIZATION
     // fprintf(fp, "\n%s    %s\n", "size(b)", "memUsage(percent)");
@@ -128,16 +128,12 @@ int main() {
     // t_gcollect();
     // printf("overhead: %lu\n", get_overhead());
 
-    // for (int i = 0; i < 5; i++){
-    //     for(int j = 0; j < 40; j++){
-    //         void* mem = t_malloc(1000);
-    //         t_free(mem);
-    //     }
-
-    //     t_gcollect();
-    //     printf("memUtil: %lf\n", get_memory_usage_percentage());
-    //     //printf("overhead: %lu\n", get_overhead());
-    // }
+    for (int i = 0; i < 1000; i++){
+        for(int j = 0; j < 100; j++){
+            t_malloc(1000);
+        }
+        t_gcollect();
+    }
 
     return 0;
 }
