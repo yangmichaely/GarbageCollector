@@ -32,8 +32,6 @@ metadata* searchBestFit(size_t);
 
 metadata* searchWorstFit(size_t);
 
-metadata* buddySplit(metadata*);
-
 void* searchBuddyFit(size_t);
 
 metadata* newHeader(size_t, void*);

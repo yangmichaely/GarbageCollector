@@ -16,7 +16,6 @@ metadata* curUsed;
 uint64_t headerCounter;
 void* stackBottom;
 void* curPage;
-void* memStart;
 size_t total_memory_allocated = 0;
 size_t memory_in_use = 0;
 void* buddyMem;
@@ -68,13 +67,6 @@ metadata* searchWorstFit(size_t size){
     return ans;
 }
 
-// metadata* buddySplit(metadata* block){
-//     block -> size /= 2;
-//     metadata* newFree = newHeader(block -> size, block -> usableMem + block -> size);
-//     insertHeader(&freeHead, &curFree, newFree);
-//     return block;
-// }
-
 void* searchBuddyFit(size_t size){
     for(int i = 0; i < BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE - size; i++){
         int counter = 0;
@@ -90,7 +82,6 @@ void* searchBuddyFit(size_t size){
             for(int j = 0; j < size; j++){
                 buddyMap[i + j] = 1;
             }
-            //printf("%p\n", temp -> usableMem + i * MIN_BUDDY_SIZE);
             metadata* newUsed = newHeader(size * MIN_BUDDY_SIZE, (void*) (buddyMem + i * MIN_BUDDY_SIZE));
             insertHeader(&usedHead, &curUsed, newUsed);
             return (void*) (buddyMem + i * MIN_BUDDY_SIZE);
@@ -103,6 +94,7 @@ metadata* newHeader(size_t size, void* usableMem){
     metadata* newHeader = NULL;
     if(headerCounter >= PAGE_SIZE){
         curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        printf("here\n");
         total_memory_allocated += PAGE_SIZE;
         newHeader = curPage;
         headerCounter = HEADER_SIZE;
@@ -261,9 +253,7 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
         for(int i = 0; i < BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE; i++){
             buddyMap[i] = 0;
         }
-        //memStart = usableMemory;
         total_memory_allocated += (BUDDY_PAGE_SIZE + BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE);
-        //freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory);
     }
     curFree = freeHead;
     curUsed = NULL;
@@ -295,9 +285,6 @@ void* t_malloc(size_t size){
 
 void combine(metadata* left, metadata* right){
     if(left != NULL && right != NULL && left -> usableMem + left -> size == right -> usableMem){
-        if(right == curPage + headerCounter - HEADER_SIZE){
-            headerCounter -= HEADER_SIZE;
-        }
         left -> size += right -> size;
         if(right -> next != NULL){
             left -> next = right -> next;
@@ -317,22 +304,8 @@ void combine(metadata* left, metadata* right){
 void coalesce(metadata* block){
     metadata* next = block -> next;
     metadata* previous = block -> prev;
-    if(strat != BUDDY){
-        combine(block, next);
-        combine(previous, block);
-    }
-    else{
-        if(((block -> usableMem - memStart) / block -> size) % 2 == 0){
-            if(next != NULL && block -> size == next -> size){
-                combine(block, next);
-            }
-        }
-        else{
-            if(previous != NULL && block -> size == previous -> size){
-                combine(previous, block);
-            }
-        }
-    }
+    combine(block, next);
+    combine(previous, block);
 }
 
 void t_free(void* ptr){
@@ -439,13 +412,13 @@ size_t get_overhead(){
     size_t overhead = 0;
     metadata* temp = freeHead;
     while(temp != NULL){
-        //printf("found in free: %d\n", temp -> size);
+        printf("found in free: %d\n", temp -> size);
         overhead += HEADER_SIZE;
         temp = temp -> next;
     }
     metadata* temp2 = usedHead;
     while(temp2 != NULL){
-        //printf("found in used: %d\n", temp2 -> size);
+        printf("found in used: %d\n", temp2 -> size);
         overhead += HEADER_SIZE;
         temp2 = temp2 -> next;
     }

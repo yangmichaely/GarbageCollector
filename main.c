@@ -8,29 +8,28 @@
 int main() {
     void* stack_bottom;
     printf("a: %p\n", &stack_bottom);
-    t_init(BUDDY, &stack_bottom);
-    // clock_t start;
-    // clock_t end;
-    // double time_taken;
-    // double average_time_taken = 0;
+    t_init(FIRST_FIT, &stack_bottom);
+    clock_t start;
+    clock_t end;
+    double time_taken;
+    double average_time_taken = 0;
     size_t size = 1;
-    // FILE *fp;
-    // fp = fopen("/u/yangm/cs429/GarbageCollector/Report_Data/BUDDY.csv", "a");
-    // void** blocks[100];
+    FILE *fp;
+    fp = fopen("/u/yangm/cs429/GarbageCollector/Report_Data/BUDDY.csv", "a");
+    void** blocks[100];
 
     //OVERALL MEM_UTILIZATION
     // fprintf(fp, "\n%s    %s\n", "size(b)", "memUsage(percent)");
     // while(size <= MAX_SIZE){
-    //     //fprintf(fp, "%ld    ", size);
+    //     fprintf(fp, "%ld    ", size);
     //     void* block = t_malloc(size);
-    //     //fprintf(fp, "%lf\n", get_memory_usage_percentage());
-    //     printf("overhead: %lu\n", get_overhead());
+    //     fprintf(fp, "%lf\n", get_memory_usage_percentage());
     //     size *= 2;
     // }
 
     //OVERALL SPEEDS
     // int numReq = 0;
-    // fprintf(fp, "\n%s    %s\n", "requests", "time(ms)");
+    // fprintf(fp, "\n%s    %s\n", "requests", "time(ns)");
     // start = clock();
     // for (int i = 0; i < 100; i++){
     //     numReq++;
@@ -47,7 +46,7 @@ int main() {
     // }
 
     //SPEEDS
-    // fprintf(fp, "%s    %s    %s\n", "size(b)", "t_malloc(ms)", "t_free(ms)");
+    // fprintf(fp, "%s    %s    %s\n", "size(b)", "t_malloc(ns)", "t_free(ns)");
     // while(size <= MAX_SIZE){
     //     fprintf(fp, "%ld    ", size);
     //     start = clock();
@@ -55,7 +54,7 @@ int main() {
     //         blocks[i] = t_malloc(size);
     //     }
     //     end = clock();
-    //     //time is in ms
+    //     //time is in ns
     //     time_taken = ((double)end - (double)start) * 1000000 / CLOCKS_PER_SEC;
     //     average_time_taken = time_taken / 100;
     //     fprintf(fp, "%f    ", average_time_taken);
@@ -73,7 +72,7 @@ int main() {
 
     //OVERHEAD
     // fprintf(fp, "\n%s", "-----------MALLOC OVERHEAD-----------");
-    // fprintf(fp, "\n%s    %s\n", "time(ms)", "overheadSize(b)");
+    // fprintf(fp, "\n%s    %s\n", "time(ns)", "overheadSize(b)");
     // start = clock();
     // for(int i = 0; i < 100; i++){
     //     blocks[i] = t_malloc(100);
@@ -83,7 +82,7 @@ int main() {
     // }
 
     // fprintf(fp, "\n%s", "-----------FREE OVERHEAD-----------");
-    // fprintf(fp, "\n%s    %s\n", "time(ms)", "overheadSize(b)");
+    // fprintf(fp, "\n%s    %s\n", "time(ns)", "overheadSize(b)");
     // start = clock();
     // for(int i = 0; i < 100; i++){
     //     t_free(blocks[i]);
@@ -94,7 +93,7 @@ int main() {
 
     //MEM_UTILIZATION
     // fprintf(fp, "\n%s", "-----------MALLOC UTILIZATION-----------");
-    // fprintf(fp, "\n%s    %s\n", "time(ms)", "memUtil(percent)");
+    // fprintf(fp, "\n%s    %s\n", "time(ns)", "memUtil(percent)");
     // start = clock();
     // for(int i = 0; i < 100; i++){
     //     blocks[i] = t_malloc(100);
@@ -104,7 +103,7 @@ int main() {
     // }
 
     // fprintf(fp, "\n%s", "-----------FREE UTILIZATION-----------");
-    // fprintf(fp, "\n%s    %s\n", "time(ms)", "memUtil(percent)");
+    // fprintf(fp, "\n%s    %s\n", "time(ns)", "memUtil(percent)");
     // start = clock();
     // for(int i = 0; i < 100; i++){
     //     t_free(blocks[i]);
@@ -133,6 +132,8 @@ int main() {
         for(int j = 0; j < 100; j++){
             t_malloc(1000);
         }
+
+        
         t_gcollect();
         printf("memUtil: %lf\n", get_memory_usage_percentage());
         printf("overhead: %lu\n", get_overhead());
