@@ -92,7 +92,8 @@ void* searchBuddyFit(size_t size){
                 for(int j = 0; j < size; j++){
                     temp -> buddyMap[i + j] = 1;
                 }
-                metadata* newUsed = newHeader(size * MIN_BUDDY_SIZE, temp -> usableMem + i * MIN_BUDDY_SIZE);
+                //printf("%p\n", temp -> usableMem + i * MIN_BUDDY_SIZE);
+                metadata* newUsed = newHeader(size * MIN_BUDDY_SIZE, (void*) (temp -> usableMem + i * MIN_BUDDY_SIZE));
                 insertHeader(&usedHead, &curUsed, newUsed);
                 return temp -> usableMem + i * MIN_BUDDY_SIZE;
             }
@@ -282,7 +283,7 @@ void* buddyFit(size_t size){
     curBuddy -> next = temp;
     curBuddy = temp;
     total_memory_allocated += (BUDDY_PAGE_SIZE + BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE);
-    metadata* newUsed = newHeader(size, temp -> usableMem);
+    metadata* newUsed = newHeader(size, curBuddy -> usableMem);
     insertHeader(&usedHead, &curUsed, newUsed);
     return newUsed -> usableMem;
 }
@@ -328,7 +329,11 @@ void* t_malloc(size_t size){
             if(size % 16 != 0){
                 size += (16 - size % 16);
             }
-            return buddyFit(size);
+            size_t trueSize = 1;
+            while(trueSize < size){
+                trueSize *= 2;
+            }
+            return buddyFit(trueSize);
     }
 }
 
