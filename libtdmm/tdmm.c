@@ -17,10 +17,10 @@ uint64_t headerCounter;
 void* stackBottom;
 void* curPage;
 void* memStart;
-buddyNode* buddyHead;
-buddyNode* curBuddy;
 size_t total_memory_allocated = 0;
 size_t memory_in_use = 0;
+void* buddyMem;
+uint8_t* buddyMap;
 
 metadata* searchFirstFit(size_t size){
     metadata* temp = freeHead;
@@ -76,29 +76,25 @@ metadata* searchWorstFit(size_t size){
 // }
 
 void* searchBuddyFit(size_t size){
-    buddyNode* temp = buddyHead;
-    while(temp != NULL){
-        for(int i = 0; i < BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE - size; i++){
-            int counter = 0;
-            for(int j = 0; j < size; j++){
-                if(temp -> buddyMap[i + j] == 1){
-                    break;
-                }
-                else{
-                    counter++;
-                }
+    for(int i = 0; i < BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE - size; i++){
+        int counter = 0;
+        for(int j = 0; j < size; j++){
+            if(buddyMap[i + j] == 1){
+                break;
             }
-            if(counter == size){
-                for(int j = 0; j < size; j++){
-                    temp -> buddyMap[i + j] = 1;
-                }
-                //printf("%p\n", temp -> usableMem + i * MIN_BUDDY_SIZE);
-                metadata* newUsed = newHeader(size * MIN_BUDDY_SIZE, (void*) (temp -> usableMem + i * MIN_BUDDY_SIZE));
-                insertHeader(&usedHead, &curUsed, newUsed);
-                return temp -> usableMem + i * MIN_BUDDY_SIZE;
+            else{
+                counter++;
             }
         }
-        temp = temp -> next;
+        if(counter == size){
+            for(int j = 0; j < size; j++){
+                buddyMap[i + j] = 1;
+            }
+            //printf("%p\n", temp -> usableMem + i * MIN_BUDDY_SIZE);
+            metadata* newUsed = newHeader(size * MIN_BUDDY_SIZE, (void*) (buddyMem + i * MIN_BUDDY_SIZE));
+            insertHeader(&usedHead, &curUsed, newUsed);
+            return (void*) (buddyMem + i * MIN_BUDDY_SIZE);
+        }
     }
     return NULL;
 }
@@ -119,24 +115,6 @@ metadata* newHeader(size_t size, void* usableMem){
     newHeader -> usableMem = usableMem;
     newHeader -> next = NULL;
     newHeader -> prev = NULL;
-    return newHeader;
-}
-
-buddyNode* newBuddyHeader(uint8_t* bMap, void* usableMem){
-    buddyNode* newHeader = NULL;
-    if(headerCounter >= PAGE_SIZE){
-        curPage = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        total_memory_allocated += PAGE_SIZE;
-        newHeader = curPage;
-        headerCounter = 24;
-    }
-    else{
-        newHeader = curPage + headerCounter;
-        headerCounter += 24;
-    }
-    newHeader -> buddyMap = bMap;
-    newHeader -> usableMem = usableMem;
-    newHeader -> next = NULL;
     return newHeader;
 }
 
@@ -265,27 +243,7 @@ void* worstFit(size_t size){
 
 void* buddyFit(size_t size){
     uint64_t bmapSize = size / MIN_BUDDY_SIZE;
-    void* status = searchBuddyFit(bmapSize);
-    if(status != NULL){
-        return status;
-    }
-    void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    uint8_t* bMap = mmap(NULL, BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    for(int i = 0; i < BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE; i++){
-        if(i < bmapSize){
-            bMap[i] = 1;
-        }
-        else{
-            bMap[i] = 0;
-        }
-    }
-    buddyNode* temp = newBuddyHeader(bMap, usableMemory);
-    curBuddy -> next = temp;
-    curBuddy = temp;
-    total_memory_allocated += (BUDDY_PAGE_SIZE + BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE);
-    metadata* newUsed = newHeader(size, curBuddy -> usableMem);
-    insertHeader(&usedHead, &curUsed, newUsed);
-    return newUsed -> usableMem;
+    return searchBuddyFit(bmapSize);
 }
 
 void t_init(alloc_strat_e allocStrat, void* stBot){
@@ -298,13 +256,11 @@ void t_init(alloc_strat_e allocStrat, void* stBot){
         freeHead = newHeader(PAGE_SIZE, usableMemory);
     }
     else{
-        void* usableMemory = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-        uint8_t* bMap = mmap(NULL, BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        buddyMem = mmap(NULL, BUDDY_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        buddyMap = (uint8_t*) mmap(NULL, BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         for(int i = 0; i < BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE; i++){
-            bMap[i] = 0;
+            buddyMap[i] = 0;
         }
-        buddyHead = newBuddyHeader(bMap, usableMemory);
-        curBuddy = buddyHead;
         //memStart = usableMemory;
         total_memory_allocated += (BUDDY_PAGE_SIZE + BUDDY_PAGE_SIZE / MIN_BUDDY_SIZE);
         //freeHead = newHeader(BUDDY_PAGE_SIZE, usableMemory);
@@ -399,22 +355,15 @@ void t_free(void* ptr){
         while(usedTemp != NULL){
             if(ptr == usedTemp -> usableMem){
                 size = usedTemp -> size;
+                removeElement(&usedHead, &curUsed, usedTemp);
                 break;
             }
             usedTemp = usedTemp -> next;
         }
-        buddyNode* temp = buddyHead;
-        while(temp != NULL){
-            if(ptr >= temp -> usableMem && ptr < temp -> usableMem + BUDDY_PAGE_SIZE){
-                int index = (ptr - temp -> usableMem) / MIN_BUDDY_SIZE;
-                for(int i = 0; i < size / MIN_BUDDY_SIZE; i++){
-                    temp -> buddyMap[index + i] = 0;
-                }
-                break;
-            }
-            temp = temp -> next;
+        int index = (ptr - buddyMem) / MIN_BUDDY_SIZE;
+        for(int i = 0; i < size / MIN_BUDDY_SIZE; i++){
+            buddyMap[index + i] = 0;
         }
-        removeElement(&usedHead, &curUsed, usedTemp);
     }
 }
 
@@ -447,16 +396,9 @@ void sweep(){
                 coalesce(temp);
             }
             else{
-                buddyNode* buddyTemp = buddyHead;
-                while(buddyTemp != NULL){
-                    if(temp -> usableMem >= buddyTemp -> usableMem && temp -> usableMem < buddyTemp -> usableMem + BUDDY_PAGE_SIZE){
-                        int index = (temp -> usableMem - buddyTemp -> usableMem) / MIN_BUDDY_SIZE;
-                        for(int i = 0; i < temp -> size / MIN_BUDDY_SIZE; i++){
-                            buddyTemp -> buddyMap[index + i] = 0;
-                        }
-                        break;
-                    }
-                    buddyTemp = buddyTemp -> next;
+                int index = (temp -> usableMem - buddyMem) / MIN_BUDDY_SIZE;
+                for(int i = 0; i < temp -> size / MIN_BUDDY_SIZE; i++){
+                    buddyMap[index + i] = 0;
                 }
                 removeElement(&usedHead, &curUsed, temp);
             }
@@ -497,13 +439,13 @@ size_t get_overhead(){
     size_t overhead = 0;
     metadata* temp = freeHead;
     while(temp != NULL){
-        printf("found in free: %d\n", temp -> size);
+        //printf("found in free: %d\n", temp -> size);
         overhead += HEADER_SIZE;
         temp = temp -> next;
     }
     metadata* temp2 = usedHead;
     while(temp2 != NULL){
-        printf("found in used: %d\n", temp2 -> size);
+        //printf("found in used: %d\n", temp2 -> size);
         overhead += HEADER_SIZE;
         temp2 = temp2 -> next;
     }

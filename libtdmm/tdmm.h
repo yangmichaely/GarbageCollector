@@ -2,7 +2,7 @@
 #define TDMM_H_
 #define PAGE_SIZE 4096
 #define HEADER_SIZE 32
-#define BUDDY_PAGE_SIZE 4096 * 4096
+#define BUDDY_PAGE_SIZE 2147483648
 #define MIN_BUDDY_SIZE 16
 
 #include <stddef.h>
@@ -25,12 +25,6 @@ struct metadata{
 };
 
 typedef struct buddyNode buddyNode;
-
-struct buddyNode{
-    uint8_t* buddyMap;
-    void* usableMem;
-    buddyNode* next;
-};
 
 metadata* searchFirstFit(size_t);
 

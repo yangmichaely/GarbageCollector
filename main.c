@@ -13,7 +13,7 @@ int main() {
     // clock_t end;
     // double time_taken;
     // double average_time_taken = 0;
-    // size_t size = 1;
+    size_t size = 1;
     // FILE *fp;
     // fp = fopen("/u/yangm/cs429/GarbageCollector/Report_Data/BUDDY.csv", "a");
     // void** blocks[100];
@@ -21,9 +21,10 @@ int main() {
     //OVERALL MEM_UTILIZATION
     // fprintf(fp, "\n%s    %s\n", "size(b)", "memUsage(percent)");
     // while(size <= MAX_SIZE){
-    //     fprintf(fp, "%ld    ", size);
+    //     //fprintf(fp, "%ld    ", size);
     //     void* block = t_malloc(size);
-    //     fprintf(fp, "%lf\n", get_memory_usage_percentage());
+    //     //fprintf(fp, "%lf\n", get_memory_usage_percentage());
+    //     printf("overhead: %lu\n", get_overhead());
     //     size *= 2;
     // }
 
