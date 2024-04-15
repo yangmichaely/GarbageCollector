@@ -12,7 +12,8 @@
         "string_view": "c",
         "initializer_list": "c",
         "ranges": "c",
-        "*.txx": "c"
+        "*.txx": "c",
+        "string.h": "c"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

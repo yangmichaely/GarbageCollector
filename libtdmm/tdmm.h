@@ -3,9 +3,10 @@
 #define PAGE_SIZE 4096
 #define HEADER_SIZE 32
 #define BUDDY_PAGE_SIZE 4096 * 4096
-#define MIN_BUDDY_SIZE 8
+#define MIN_BUDDY_SIZE 16
 
 #include <stddef.h>
+#include <stdint.h> 
 
 typedef enum{
     FIRST_FIT,
@@ -23,6 +24,14 @@ struct metadata{
     struct metadata* prev;
 };
 
+typedef struct buddyNode buddyNode;
+
+struct buddyNode{
+    uint8_t* buddyMap;
+    void* usableMem;
+    buddyNode* next;
+};
+
 metadata* searchFirstFit(size_t);
 
 metadata* searchBestFit(size_t);
@@ -31,7 +40,7 @@ metadata* searchWorstFit(size_t);
 
 metadata* buddySplit(metadata*);
 
-metadata* searchBuddyFit(size_t);
+void* searchBuddyFit(size_t);
 
 metadata* newHeader(size_t, void*);
 
