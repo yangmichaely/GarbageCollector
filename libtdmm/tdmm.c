@@ -381,6 +381,9 @@ void sweep(){
 }
 
 void t_gcollect(){
+    if(strat == BUDDY){
+        return;
+    }
     void* stackTop;
     for(void** i = &stackTop; i < (void**) stackBottom; i++){
         if(*i != NULL){
