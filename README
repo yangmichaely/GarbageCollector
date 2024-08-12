@@ -1,1 +1,1 @@
-This is a garbage collector for assembly in the RISC-V style.
+This is a memory management library for C. I rewrote malloc and free (I called them t_malloc and t_free), and I also added a garbage collection function which you can call via t_gcollect.
